@@ -1,0 +1,1 @@
+declare type OrderBy = 1 | "ASC" | "DESC" | -1
