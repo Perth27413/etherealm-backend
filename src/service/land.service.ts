@@ -13,7 +13,6 @@ export class LandService {
 
   constructor(
     @InjectRepository(Land) private landRepo: Repository<Land>,
-    @InjectRepository(LandStatus) private landStatusRepo: Repository<LandStatus>,
     private landStatusService: LandStatusService
   ) {}
 
