@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { LandModule } from './module/land.module';
+import { LandStatusModule } from './module/land-status.module';
 
 
 @Module({
@@ -20,7 +21,8 @@ import { LandModule } from './module/land.module';
       retryDelay: 3000,
       retryAttempts: 10
     }),
-    LandModule
+    LandModule,
+    LandStatusModule
   ],
   controllers: [AppController],
   providers: [AppService],

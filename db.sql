@@ -21,3 +21,7 @@ ALTER TABLE public.land ADD CONSTRAINT land_fk FOREIGN KEY (land_status) REFEREN
 
 INSERT INTO public.land_status (land_status_name)
 	VALUES ('Listed on Market');
+INSERT INTO public.land_status (land_status_name)
+	VALUES ('Unlisted on Market');
+INSERT INTO public.land_status (land_status_name)
+	VALUES ('No Owner');
