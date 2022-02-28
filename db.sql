@@ -25,3 +25,22 @@ INSERT INTO public.land_status (land_status_name)
 	VALUES ('Unlisted on Market');
 INSERT INTO public.land_status (land_status_name)
 	VALUES ('No Owner');
+
+ALTER TABLE public.land ALTER COLUMN land_owner_token_id DROP NOT NULL;
+
+CREATE TABLE public.land_size (
+	land_size_id serial NOT NULL,
+	land_size int NULL
+);
+ALTER TABLE public.land_size ADD CONSTRAINT land_size_pk PRIMARY KEY (land_size_id);
+
+INSERT INTO public.land_size (land_size_id,land_size)
+	VALUES (1,20);
+INSERT INTO public.land_size (land_size_id,land_size)
+	VALUES (2,60);
+INSERT INTO public.land_size (land_size_id,land_size)
+	VALUES (3,120);
+
+ALTER TABLE public.land ADD land_position varchar NOT NULL;
+ALTER TABLE public.land ADD land_size serial NOT NULL;
+ALTER TABLE public.land ADD CONSTRAINT land_fk FOREIGN KEY (land_size) REFERENCES public.land_size(land_size_id);

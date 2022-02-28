@@ -5,11 +5,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Land } from 'src/entities/land.entity';
 import { LandStatus } from 'src/entities/land-status.entity';
 import { LandStatusModule } from './land-status.module';
+import { LandSizeModule } from './land-size.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Land, LandStatus]),
-    LandStatusModule
+    LandStatusModule,
+    LandSizeModule
   ],
   controllers: [LandController],
   providers: [LandService]

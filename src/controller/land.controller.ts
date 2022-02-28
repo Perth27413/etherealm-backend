@@ -19,6 +19,12 @@ export class LandController {
     return land
   }
 
+  @Post('/generate')
+  public async generateLands(): Promise<string> {
+    let message: string = await this.landService.generateLands()
+    return message
+  }
+
   @Post()
   public async insertLand(@Body() landRequest: LandRequestModel): Promise<Land> {
     let land: Land = await this.landService.insertLand(landRequest)

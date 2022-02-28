@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { LandModule } from './module/land.module';
 import { LandStatusModule } from './module/land-status.module';
+import { LandSizeModule } from './module/land-size.module';
 
 
 @Module({
@@ -22,7 +23,8 @@ import { LandStatusModule } from './module/land-status.module';
       retryAttempts: 10
     }),
     LandModule,
-    LandStatusModule
+    LandStatusModule,
+    LandSizeModule
   ],
   controllers: [AppController],
   providers: [AppService],
