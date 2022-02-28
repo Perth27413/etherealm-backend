@@ -65,8 +65,7 @@ export class LandService {
             landSize: await this.landSizeService.findSizeByValue(lands[index].end.x - lands[index].start.x),
             onRecommend: false
           }
-          let landResult: Land = await this.landRepo.save(data)
-          break
+          await this.landRepo.save(data)
         }
         return 'Generate Lands Success'
       }
