@@ -10,6 +10,9 @@ import { LandStatusService } from './land-status.service';
 import * as lands from '../json/lands.json'
 import { LandSizeService } from './land-size.service';
 import { LandSize } from 'src/entities/land-size.entity';
+import PurchaseLandRequestModel from 'src/model/lands/PurchaseLandRequestModel';
+import LandResponseModel from 'src/model/lands/LandResponseModel';
+import CoordinatesModel from 'src/model/lands/CoordinatesModel';
 
 @Injectable()
 export class LandService {
@@ -20,17 +23,19 @@ export class LandService {
     private landSizeService: LandSizeService
   ) {}
 
-  public async findAll(): Promise<Array<Land>> {
+  public async findAll(): Promise<Array<LandResponseModel>> {
     let allLands: Array<Land> = await this.landRepo.find({relations: ["landStatus", "landSize"]})
-    return allLands
+    let results: Array<LandResponseModel> = this.mapLandsToLandResponseModel(allLands)
+    return results
   }
 
-  public async findLandByTokenId(tokenId: string): Promise<Land> {
+  public async findLandByTokenId(tokenId: string): Promise<LandResponseModel> {
     let land: Land = await this.landRepo.findOne(tokenId, {relations: ["landStatus", "landSize"]})
+    let result: LandResponseModel = this.mapLandToLandResponseModel(land)
     if (!land) {
       throw new DataNotFoundException
     }
-    return land
+    return result
   }
 
   public async insertLand(landRequest: LandRequestModel): Promise<Land> {
@@ -45,6 +50,19 @@ export class LandService {
     } catch (error) {
       console.error(error)
       throw new ValidateException('Body is invalid')
+    }
+  }
+
+  public async purchaseLand(purchaseLandRequest: PurchaseLandRequestModel): Promise<LandResponseModel> {
+    try {
+      let land: Land = await this.landRepo.findOne({where: {landTokenId: purchaseLandRequest.landTokenId}})
+      land.landOwnerTokenId = purchaseLandRequest.ownerTokenId
+      land = await this.landRepo.save(land)
+      let result: LandResponseModel = this.mapLandToLandResponseModel(land)
+      return result
+    } catch (error) {
+      console.error(error)
+      throw new ValidateException('Error when purchase land')
     }
   }
 
@@ -81,6 +99,39 @@ export class LandService {
       return land
     }
     return null
+  }
+
+  private mapLandsToLandResponseModel(lands: Array<Land>): Array<LandResponseModel> {
+    let result: Array<LandResponseModel> = []
+    lands.forEach((land: Land) => {
+      let data: LandResponseModel = this.mapLandToLandResponseModel(land)
+      result.push(data)
+    })
+    return result
+  }
+
+  private mapLandToLandResponseModel(land: Land): LandResponseModel {
+    let location: CoordinatesModel = {
+      x: land.landLocation.split(',').map(item => Number(item))[0],
+      y: land.landLocation.split(',').map(item => Number(item))[1]
+    }
+    let position: CoordinatesModel = {
+      x: land.landPosition.split(',').map(item => Number(item))[0],
+      y: land.landPosition.split(',').map(item => Number(item))[1]
+    }
+    let result: LandResponseModel = {
+      landTokenId: land.landTokenId,
+      landName: land.landName,
+      landDescription: land.landDescription,
+      landOwnerTokenId: land.landOwnerTokenId,
+      landLocation: location,
+      landPosition: position,
+      landStatus: land.landStatus,
+      landAssets: land.landAssets,
+      landSize: land.landSize,
+      onRecommend: land.onRecommend
+    }
+    return result
   }
 
   private async mapLandRequestModelToLandEntity(landRequest: LandRequestModel): Promise<Land> {

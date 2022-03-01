@@ -1,5 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import LandRequestModel from 'src/model/lands/LandRequestModel';
+import LandResponseModel from 'src/model/lands/LandResponseModel';
+import PurchaseLandRequestModel from 'src/model/lands/PurchaseLandRequestModel';
 import { Land } from '../entities/land.entity';
 import { LandService } from '../service/land.service';
 
@@ -8,14 +10,20 @@ export class LandController {
   constructor(private readonly landService: LandService) {}
 
   @Get()
-  public async findAll(): Promise<Array<Land>> {
-    let allLands: Array<Land> = await this.landService.findAll()
+  public async findAll(): Promise<Array<LandResponseModel>> {
+    let allLands: Array<LandResponseModel> = await this.landService.findAll()
     return allLands
   }
 
   @Get('/:tokenId')
-  public async findByTokenId(@Param("tokenId") tokenId: string): Promise<Land> {
-    let land: Land = await this.landService.findLandByTokenId(tokenId)
+  public async findByTokenId(@Param("tokenId") tokenId: string): Promise<LandResponseModel> {
+    let land: LandResponseModel = await this.landService.findLandByTokenId(tokenId)
+    return land
+  }
+
+  @Patch('/purchase')
+  public async purchaseLand(@Body() purchaseLandRequest: PurchaseLandRequestModel): Promise<LandResponseModel> {
+    let land: LandResponseModel = await this.landService.purchaseLand(purchaseLandRequest)
     return land
   }
 
