@@ -21,7 +21,7 @@ export class LandController {
     return land
   }
 
-  @Patch('/purchase')
+  @Post('/purchase')
   public async purchaseLand(@Body() purchaseLandRequest: PurchaseLandRequestModel): Promise<LandResponseModel> {
     let land: LandResponseModel = await this.landService.purchaseLand(purchaseLandRequest)
     return land
