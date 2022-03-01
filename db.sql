@@ -44,3 +44,11 @@ INSERT INTO public.land_size (land_size_id,land_size)
 ALTER TABLE public.land ADD land_position varchar NOT NULL;
 ALTER TABLE public.land ADD land_size serial NOT NULL;
 ALTER TABLE public.land ADD CONSTRAINT land_fk FOREIGN KEY (land_size) REFERENCES public.land_size(land_size_id);
+
+CREATE TABLE public."user" (
+	user_token_id varchar NOT NULL,
+	user_name varchar NULL,
+	user_description varchar NULL,
+	user_profile_pic varchar NULL,
+	CONSTRAINT user_pk PRIMARY KEY (user_token_id)
+);

@@ -57,6 +57,7 @@ export class LandService {
     try {
       let land: Land = await this.landRepo.findOne({where: {landTokenId: purchaseLandRequest.landTokenId}})
       land.landOwnerTokenId = purchaseLandRequest.ownerTokenId
+      land.landStatus = await this.landStatusService.findStatusById(2)
       land = await this.landRepo.save(land)
       let result: LandResponseModel = this.mapLandToLandResponseModel(land)
       return result
