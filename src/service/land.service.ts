@@ -55,7 +55,7 @@ export class LandService {
 
   public async purchaseLand(purchaseLandRequest: PurchaseLandRequestModel): Promise<LandResponseModel> {
     try {
-      let land: Land = await this.landRepo.findOne({where: {landTokenId: purchaseLandRequest.landTokenId}})
+      let land: Land = await this.landRepo.findOne({where: {landTokenId: purchaseLandRequest.landTokenId}, relations: ["landStatus", "landSize"]})
       land.landOwnerTokenId = purchaseLandRequest.ownerTokenId
       land.landStatus = await this.landStatusService.findStatusById(2)
       land = await this.landRepo.save(land)
@@ -69,7 +69,7 @@ export class LandService {
 
   public async generateLands(): Promise<string> {
     try {
-      let allLands: Array<Land> = await this.landRepo.find({relations: ["landStatus"]})
+      let allLands: Array<Land> = await this.landRepo.find({relations: ["landStatus", "landSize"]})
       if (!allLands.length) {
         for (let index = 0; index < lands.length; index++) {
           let data: Land = {
