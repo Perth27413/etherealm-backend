@@ -33,6 +33,12 @@ export class LandController {
     return land
   }
 
+  @Post('/land/update')
+  public async updateLand(@Body() landRequest: LandRequestModel): Promise<LandResponseModel> {
+    let land: LandResponseModel = await this.landService.updateLand(landRequest)
+    return land
+  }
+
   @Post('/generate')
   public async generateLands(): Promise<string> {
     let message: string = await this.landService.generateLands()

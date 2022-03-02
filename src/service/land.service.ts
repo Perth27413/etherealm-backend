@@ -62,6 +62,13 @@ export class LandService {
     }
   }
 
+  public async updateLand(landRequest: LandRequestModel): Promise<LandResponseModel> {
+    let land: Land = await this.mapLandRequestModelToLandEntity(landRequest)
+    land = await this.landRepo.save(land)
+    let result: LandResponseModel = this.mapLandToLandResponseModel(land)
+    return result
+  }
+
   public async purchaseLand(purchaseLandRequest: PurchaseLandRequestModel): Promise<LandResponseModel> {
     try {
       let land: Land = await this.landRepo.findOne({where: {landTokenId: purchaseLandRequest.landTokenId}, relations: ["landStatus", "landSize"]})
