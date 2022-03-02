@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
+import DataNotFoundException from 'src/Exception/DataNotFoundException';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -27,6 +28,14 @@ export class UserService {
     } catch (error) {
       console.error(error)
     }
+  }
+
+  public async findUserByTokenId(userTokenId: string): Promise<User> {
+    let user: User = await this.userRepo.findOne(userTokenId)
+    if (!user) {
+      throw new DataNotFoundException
+    }
+    return user
   }
 
   private async checkUserIsExists(userTokenId: string): Promise<User | null> {

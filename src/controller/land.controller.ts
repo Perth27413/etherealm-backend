@@ -15,9 +15,15 @@ export class LandController {
     return allLands
   }
 
-  @Get('/:tokenId')
+  @Get('/land/:tokenId')
   public async findByTokenId(@Param("tokenId") tokenId: string): Promise<LandResponseModel> {
     let land: LandResponseModel = await this.landService.findLandByTokenId(tokenId)
+    return land
+  }
+
+  @Get('ownerTokenId')
+  public async findByOwnerTokenId(@Query("ownerTokenId") ownerTokenId: string): Promise<Array<LandResponseModel>> {
+    let land: Array<LandResponseModel> = await this.landService.findLandByOwnerTokenId(ownerTokenId)
     return land
   }
 

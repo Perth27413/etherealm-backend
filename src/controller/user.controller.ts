@@ -12,4 +12,10 @@ export class UserController {
     return user
   }
 
+  @Get('/user/:userTokenId')
+  public async getUserByTokenId(@Param('userTokenId') userTokenId: string): Promise<User> {
+    let user: User = await this.userService.findUserByTokenId(userTokenId)
+    return user
+  }
+
 }

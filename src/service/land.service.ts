@@ -31,10 +31,19 @@ export class LandService {
 
   public async findLandByTokenId(tokenId: string): Promise<LandResponseModel> {
     let land: Land = await this.landRepo.findOne(tokenId, {relations: ["landStatus", "landSize"]})
-    let result: LandResponseModel = this.mapLandToLandResponseModel(land)
     if (!land) {
       throw new DataNotFoundException
     }
+    let result: LandResponseModel = this.mapLandToLandResponseModel(land)
+    return result
+  }
+
+  public async findLandByOwnerTokenId(ownerTokenId: string): Promise<Array<LandResponseModel>> {
+    let land: Array<Land> = await this.landRepo.find({where: {landOwnerTokenId: ownerTokenId}, relations: ["landStatus", "landSize"]})
+    if (!land.length) {
+      return []
+    }
+    let result: Array<LandResponseModel> = this.mapLandsToLandResponseModel(land)
     return result
   }
 
