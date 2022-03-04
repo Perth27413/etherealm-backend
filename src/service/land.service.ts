@@ -95,7 +95,7 @@ export class LandService {
             landOwnerTokenId: '',
             landLocation: `${lands[index].location.x},${lands[index].location.y}`,
             landPosition: `${lands[index].start.x},${lands[index].start.y}`,
-            landStatus: await this.landStatusService.findStatusById(3), // status 3 = No Owner
+            landStatus: await this.landStatusService.findStatusById(1), // status 1 = No Owner
             landAssets: '',
             landSize: await this.landSizeService.findSizeByValue(lands[index].end.x - lands[index].start.x),
             onRecommend: false

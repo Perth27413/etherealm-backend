@@ -20,11 +20,19 @@ CREATE TABLE public.land_status (
 ALTER TABLE public.land ADD CONSTRAINT land_fk FOREIGN KEY (land_status) REFERENCES public.land_status(land_status_id);
 
 INSERT INTO public.land_status (land_status_name)
-	VALUES ('Listed on Market');
-INSERT INTO public.land_status (land_status_name)
-	VALUES ('Unlisted on Market');
-INSERT INTO public.land_status (land_status_name)
 	VALUES ('No Owner');
+INSERT INTO public.land_status (land_status_name)
+	VALUES ('Already owned');
+INSERT INTO public.land_status (land_status_name)
+	VALUES ('For sell on market');
+INSERT INTO public.land_status (land_status_name)
+	VALUES ('For rent on market');
+INSERT INTO public.land_status (land_status_name)
+	VALUES ('Rent out');
+INSERT INTO public.land_status (land_status_name)
+	VALUES ('Renting');
+INSERT INTO public.land_status (land_status_name)
+	VALUES ('Hiring');
 
 ALTER TABLE public.land ALTER COLUMN land_owner_token_id DROP NOT NULL;
 
