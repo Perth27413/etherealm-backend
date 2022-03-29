@@ -60,3 +60,72 @@ CREATE TABLE public."user" (
 	user_profile_pic varchar NULL,
 	CONSTRAINT user_pk PRIMARY KEY (user_token_id)
 );
+
+CREATE TABLE public.log_transactions (
+	from_user_token_id varchar NOT NULL,
+	to_user_token_id varchar NOT NULL,
+	transaction_block varchar NOT NULL,
+	gas_price serial NOT NULL,
+	log_description serial NOT NULL,
+	CONSTRAINT log_transactions_fk FOREIGN KEY (from_user_token_id) REFERENCES public."user"(user_token_id),
+	CONSTRAINT log_transactions_fk_1 FOREIGN KEY (to_user_token_id) REFERENCES public."user"(user_token_id)
+);
+
+CREATE TABLE public.notification_activity (
+	activity_id serial NOT NULL,
+	activity_name varchar NULL
+);
+
+
+CREATE TABLE public.log_description (
+	log_description_id serial NOT NULL,
+	log_description_name varchar NULL,
+	CONSTRAINT log_description_pk PRIMARY KEY (log_description_id)
+);
+
+ALTER TABLE public.notification_activity ADD CONSTRAINT notification_activity_pk PRIMARY KEY (activity_id);
+
+CREATE TABLE public.market_type (
+	market_type_id serial NOT NULL,
+	market_type_name varchar NULL,
+	CONSTRAINT market_type_pk PRIMARY KEY (market_type_id)
+);
+
+ALTER TABLE public.log_transactions ADD CONSTRAINT log_transactions_fk_desc FOREIGN KEY (log_description) REFERENCES public.log_description(log_description_id);
+
+CREATE TABLE public.notifications (
+	owner_user_token_id varchar NOT NULL,
+	from_user_token_id varchar NOT NULL,
+	activity_id serial NOT NULL,
+	price float4 NULL,
+	land_token_id varchar NOT NULL,
+	date_time timestamp(0) NULL,
+	CONSTRAINT notifications_fk FOREIGN KEY (owner_user_token_id) REFERENCES public."user"(user_token_id),
+	CONSTRAINT notifications_fk_1 FOREIGN KEY (from_user_token_id) REFERENCES public."user"(user_token_id),
+	CONSTRAINT notifications_fk_2 FOREIGN KEY (activity_id) REFERENCES public.notification_activity(activity_id),
+	CONSTRAINT notifications_fk_3 FOREIGN KEY (land_token_id) REFERENCES public.land(land_token_id)
+);
+
+CREATE TABLE public.land_market (
+	land_token_id varchar NOT NULL,
+	owner_user_token_id varchar NOT NULL,
+	market_type serial NOT NULL,
+	price float4 NOT NULL,
+	"period" int NULL,
+	CONSTRAINT land_market_fk FOREIGN KEY (land_token_id) REFERENCES public.land(land_token_id),
+	CONSTRAINT land_market_fk_1 FOREIGN KEY (owner_user_token_id) REFERENCES public."user"(user_token_id),
+	CONSTRAINT land_market_fk_2 FOREIGN KEY (market_type) REFERENCES public.market_type(market_type_id)
+);
+
+INSERT INTO public.notification_activity (activity_id,activity_name)
+	VALUES (1,'Offer');
+INSERT INTO public.notification_activity (activity_id,activity_name)
+	VALUES (2,'Buy');
+
+INSERT INTO public.log_description (log_description_id,log_description_name)
+VALUES (1,'Buy');
+
+INSERT INTO public.market_type (market_type_id,market_type_name)
+	VALUES (1,'Sell');
+INSERT INTO public.market_type (market_type_id,market_type_name)
+	VALUES (2,'Rent');
