@@ -129,3 +129,12 @@ INSERT INTO public.market_type (market_type_id,market_type_name)
 	VALUES (1,'Sell');
 INSERT INTO public.market_type (market_type_id,market_type_name)
 	VALUES (2,'Rent');
+
+ALTER TABLE public.land_market ADD land_market_id serial NOT NULL;
+ALTER TABLE public.land_market ADD CONSTRAINT land_market_pk PRIMARY KEY (land_market_id);
+
+ALTER TABLE public.notifications ADD notification_id serial NOT NULL;
+ALTER TABLE public.notifications ADD CONSTRAINT notifications_pk PRIMARY KEY (notification_id);
+
+ALTER TABLE public.log_transactions ADD log_transactions_id serial NOT NULL;
+ALTER TABLE public.log_transactions ADD CONSTRAINT log_transactions_pk PRIMARY KEY (log_transactions_id);
