@@ -9,6 +9,6 @@ import { LogDescriptionService } from 'src/service/log-description.service';
   ],
   controllers: [],
   providers: [LogDescriptionService],
-  exports: [LogDescriptionService]
+  exports: [LogDescriptionService],
 })
 export class LogDescriptionModule {}

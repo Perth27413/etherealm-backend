@@ -15,4 +15,9 @@ export class LogDescriptionService {
     return result
   }
 
+  public async findByID(id: number): Promise<LogDescription> {
+    let result: LogDescription = await this.logDescriptionRepo.findOne({where: {logDescriptionId: id}})
+    return result
+  }
+
 }

@@ -10,7 +10,7 @@ export class LogTransactions {
 
     @ManyToOne(() => User, user => user.userTokenId)
     @JoinColumn({name: 'from_user_token_id'})
-    formUserTokenId: User
+    fromUserTokenId: User
     
     @ManyToOne(() => User, user => user.userTokenId)
     @JoinColumn({name: 'to_user_token_id'})
