@@ -91,6 +91,18 @@ export class LandService {
     }
   }
 
+  public async transferLand(from: string, to: string, landTokenId: string): Promise<LandResponseModel> {
+    const exists: Land = await this.landRepo.findOne({where:{landTokenId: landTokenId, landOwnerTokenId: from}, relations: ["landStatus", "landSize"]})
+    if (exists) {
+      exists.landOwnerTokenId = to
+      const land: Land = await this.landRepo.save(exists)
+      const result: LandResponseModel = this.mapLandToLandResponseModel(land)
+      return result
+    } else {
+      throw new ValidateException('Land owner is invalid.')
+    }
+  }
+
   public async generateLands(): Promise<string> {
     try {
       let allLands: Array<Land> = await this.landRepo.find({relations: ["landStatus", "landSize"]})

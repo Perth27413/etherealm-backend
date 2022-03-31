@@ -138,3 +138,5 @@ ALTER TABLE public.notifications ADD CONSTRAINT notifications_pk PRIMARY KEY (no
 
 ALTER TABLE public.log_transactions ADD log_transactions_id serial NOT NULL;
 ALTER TABLE public.log_transactions ADD CONSTRAINT log_transactions_pk PRIMARY KEY (log_transactions_id);
+
+ALTER TABLE public.log_transactions ALTER COLUMN gas_price TYPE float4 USING gas_price::float4;

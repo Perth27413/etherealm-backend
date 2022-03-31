@@ -4,6 +4,9 @@ import { LandMarket } from 'src/entities/land-market.entity';
 import { Land } from 'src/entities/land.entity';
 import { MarketType } from 'src/entities/market-type.entity';
 import { User } from 'src/entities/user.entity';
+import { ValidateException } from 'src/Exception/ValidateException';
+import LandResponseModel from 'src/model/lands/LandResponseModel';
+import BuyLandOnMarketRequestModel from 'src/model/market/BuyLandOnMarketRequestModel';
 import LandMarketRequestModel from 'src/model/market/LandMarketRequestModel';
 import { Repository } from 'typeorm';
 import { LandService } from './land.service';
@@ -26,9 +29,26 @@ export class LandMarketService {
   }
 
   public async addLandToLandMarket(request: LandMarketRequestModel): Promise<LandMarket> {
+    const exists: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landTokenId}})
+    if (exists) {
+      throw new ValidateException('Land is already listed on market.')
+    }
     const data: LandMarket = await this.mapLandMarketRequestModelToLandMarket(request)
     let result: LandMarket = await this.landMarketRepo.save(data)
     return result
+  }
+
+  public async buyLandOnMarket(request: BuyLandOnMarketRequestModel): Promise<LandResponseModel> {
+    const land: LandResponseModel = await this.landService.transferLand(request.fromUserTokenId, request.toUserTokenId, request.landUserTokenId)
+    if (land) {
+      const landOnMarket: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landUserTokenId}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
+      if (landOnMarket.ownerUserTokenId.userTokenId === request.fromUserTokenId) {
+        await this.landMarketRepo.delete(landOnMarket)
+        return land
+      } else {
+        throw new ValidateException('Land owner is invalid.')
+      }
+    }
   }
 
   private async mapLandMarketRequestModelToLandMarket(request: LandMarketRequestModel): Promise<LandMarket> {
