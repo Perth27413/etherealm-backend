@@ -38,6 +38,14 @@ export class LandService {
     return result
   }
 
+  public async findLandEntityByTokenId(tokenId: string): Promise<Land> {
+    let land: Land = await this.landRepo.findOne(tokenId, {relations: ["landStatus", "landSize"]})
+    if (!land) {
+      throw new DataNotFoundException
+    }
+    return land
+  }
+
   public async findLandByOwnerTokenId(ownerTokenId: string): Promise<Array<LandResponseModel>> {
     let land: Array<Land> = await this.landRepo.find({where: {landOwnerTokenId: ownerTokenId}, relations: ["landStatus", "landSize"]})
     if (!land.length) {

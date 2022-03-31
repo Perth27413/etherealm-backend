@@ -15,4 +15,9 @@ export class MarketTypeService {
     return result
   }
 
+  public async findTypeById(id: number): Promise<MarketType> {
+    const result: MarketType = await this.marketTypeRepo.findOne({where: {marketTypeId: id}})
+    return result
+  }
+
 }

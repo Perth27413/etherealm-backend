@@ -14,6 +14,7 @@ import { LandSizeModule } from './land-size.module';
     LandSizeModule
   ],
   controllers: [LandController],
-  providers: [LandService]
+  providers: [LandService],
+  exports: [LandService]
 })
 export class LandModule {}

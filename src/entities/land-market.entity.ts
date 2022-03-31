@@ -6,7 +6,7 @@ import { User } from "./user.entity";
 @Entity({name: "land_market"})
 export class LandMarket {
 
-    @PrimaryColumn({name: 'land_market_id'})
+    @PrimaryGeneratedColumn({name: 'land_market_id'})
     landMarketId: number
 
     @ManyToOne(() => Land, land => land.landTokenId)
