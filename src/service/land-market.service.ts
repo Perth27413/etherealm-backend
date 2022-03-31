@@ -35,6 +35,8 @@ export class LandMarketService {
     }
     const data: LandMarket = await this.mapLandMarketRequestModelToLandMarket(request)
     let result: LandMarket = await this.landMarketRepo.save(data)
+    const statusId: number = request.marketType === 1 ? 3 : 4
+    await this.landService.updateLandStatus(request.landTokenId, statusId)
     return result
   }
 

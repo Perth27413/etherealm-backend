@@ -91,10 +91,19 @@ export class LandService {
     }
   }
 
+  public async updateLandStatus(landTokenId: string, statusId: number): Promise<void> {
+    const status: LandStatus = await this.landStatusService.findStatusById(statusId)
+    let land: Land = await this.landRepo.findOne({where: {landTokenId: landTokenId}, relations: ["landStatus", "landSize"]})
+    land.landStatus = status
+    await this.landRepo.save(land)
+  }
+
   public async transferLand(from: string, to: string, landTokenId: string): Promise<LandResponseModel> {
     const exists: Land = await this.landRepo.findOne({where:{landTokenId: landTokenId, landOwnerTokenId: from}, relations: ["landStatus", "landSize"]})
     if (exists) {
+      const status: LandStatus = await this.landStatusService.findStatusById(2)
       exists.landOwnerTokenId = to
+      exists.landStatus = status      
       const land: Land = await this.landRepo.save(exists)
       const result: LandResponseModel = this.mapLandToLandResponseModel(land)
       return result
