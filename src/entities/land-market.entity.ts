@@ -27,4 +27,7 @@ export class LandMarket {
     @Column({name: 'period'})
     period: number
 
+    @Column({name: 'fees'})
+    fees: number
+
 }

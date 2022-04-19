@@ -45,15 +45,14 @@ export class LandMarketService {
   }
 
   public async buyLandOnMarket(request: BuyLandOnMarketRequestModel): Promise<LandResponseModel> {
-    const land: LandResponseModel = await this.landService.transferLand(request.fromUserTokenId, request.toUserTokenId, request.landUserTokenId)
-    if (land) {
-      const landOnMarket: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landUserTokenId}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
-      if (landOnMarket.ownerUserTokenId.userTokenId === request.fromUserTokenId) {
-        await this.landMarketRepo.delete(landOnMarket)
-        return land
-      } else {
-        throw new ValidateException('Land owner is invalid.')
-      }
+    const landOnMarket: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landUserTokenId}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
+    if (!landOnMarket) {
+      throw new ValidateException('This Land is not list on market.')
+    }
+    if (landOnMarket.ownerUserTokenId.userTokenId === request.fromUserTokenId) {
+      const land: LandResponseModel = await this.landService.transferLand(request.fromUserTokenId, request.toUserTokenId, request.landUserTokenId)
+      await this.landMarketRepo.delete(landOnMarket)
+      return land
     }
   }
 
@@ -67,9 +66,14 @@ export class LandMarketService {
       period: request.period,
       price: request.price,
       marketType: marketType,
-      landMarketId: null
+      landMarketId: null,
+      fees: this.calculateFees(request.price)
     }
     return result
+  }
+
+  private calculateFees(price: number): number {
+    return price * (2.5 / 100)
   }
 
 }
