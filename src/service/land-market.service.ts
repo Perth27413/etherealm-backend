@@ -33,10 +33,14 @@ export class LandMarketService {
     if (exists) {
       throw new ValidateException('Land is already listed on market.')
     }
-    const data: LandMarket = await this.mapLandMarketRequestModelToLandMarket(request)
-    let result: LandMarket = await this.landMarketRepo.save(data)
+    const land: Land = await this.landService.findLandEntityByTokenId(request.landTokenId)
+    if (land.landOwnerTokenId !== request.ownerUserTokenId) {
+      throw new ValidateException('Land owner is invalid.')
+    }
     const statusId: number = request.marketType === 1 ? 3 : 4
     await this.landService.updateLandStatus(request.landTokenId, statusId)
+    const data: LandMarket = await this.mapLandMarketRequestModelToLandMarket(request)
+    let result: LandMarket = await this.landMarketRepo.save(data)
     return result
   }
 

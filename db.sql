@@ -65,7 +65,7 @@ CREATE TABLE public.log_transactions (
 	from_user_token_id varchar NOT NULL,
 	to_user_token_id varchar NOT NULL,
 	transaction_block varchar NOT NULL,
-	gas_price serial NOT NULL,
+	gas_price float4 NOT NULL,
 	log_description serial NOT NULL,
 	CONSTRAINT log_transactions_fk FOREIGN KEY (from_user_token_id) REFERENCES public."user"(user_token_id),
 	CONSTRAINT log_transactions_fk_1 FOREIGN KEY (to_user_token_id) REFERENCES public."user"(user_token_id)
@@ -138,5 +138,3 @@ ALTER TABLE public.notifications ADD CONSTRAINT notifications_pk PRIMARY KEY (no
 
 ALTER TABLE public.log_transactions ADD log_transactions_id serial NOT NULL;
 ALTER TABLE public.log_transactions ADD CONSTRAINT log_transactions_pk PRIMARY KEY (log_transactions_id);
-
-ALTER TABLE public.log_transactions ALTER COLUMN gas_price TYPE float4 USING gas_price::float4;
