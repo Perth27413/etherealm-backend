@@ -45,12 +45,12 @@ export class LandMarketService {
   }
 
   public async buyLandOnMarket(request: BuyLandOnMarketRequestModel): Promise<LandResponseModel> {
-    const landOnMarket: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landUserTokenId}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
+    const landOnMarket: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landTokenId}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
     if (!landOnMarket) {
       throw new ValidateException('This Land is not list on market.')
     }
     if (landOnMarket.ownerUserTokenId.userTokenId === request.fromUserTokenId) {
-      const land: LandResponseModel = await this.landService.transferLand(request.fromUserTokenId, request.toUserTokenId, request.landUserTokenId)
+      const land: LandResponseModel = await this.landService.transferLand(request.fromUserTokenId, request.toUserTokenId, request.landTokenId)
       await this.landMarketRepo.delete(landOnMarket)
       return land
     }
