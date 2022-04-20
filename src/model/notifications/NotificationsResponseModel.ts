@@ -4,4 +4,5 @@ export default class NotificationsResponseModel {
   public fromUserTokenId: string = String()
   public landName: string = String()
   public dateTime: string = String()
+  public price: number = Number()
 }

@@ -55,7 +55,8 @@ export class NotificationsService {
         fromUserTokenId: item.fromUserTokenId.userTokenId,
         ownerUserTokenId: item.ownerUserTokenId.userTokenId,
         landName: item.landTokenId.landName,
-        dateTime: item.dateTime.toLocaleString().replace(',', '')
+        dateTime: item.dateTime.toLocaleString().replace(',', ''),
+        price: item.price
       }
       result.push(data)
     })
