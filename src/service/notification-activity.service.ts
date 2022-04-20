@@ -15,4 +15,9 @@ export class NotificationActivityService {
     return result
   }
 
+  public async findActivityById(id: number): Promise<NotificationActivity> {
+    let result: NotificationActivity = await this.notificationActivityRepo.findOne({where: {activityId: id}})
+    return result
+  }
+
 }

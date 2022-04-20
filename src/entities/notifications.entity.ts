@@ -6,7 +6,7 @@ import { Land } from "./land.entity";
 @Entity({name: "notifications"})
 export class Notifications {
 
-    @PrimaryColumn({name: 'notification_id'})
+    @PrimaryGeneratedColumn({name: 'notification_id'})
     notificationId: number
 
     @ManyToOne(() => User, user => user.userTokenId)
@@ -15,7 +15,7 @@ export class Notifications {
     
     @ManyToOne(() => User, user => user.userTokenId)
     @JoinColumn({name: 'from_user_token_id'})
-    formUserTokenId: User
+    fromUserTokenId: User
 
     @ManyToOne(() => NotificationActivity, activity => activity.activityId)
     @JoinColumn({name: 'activity_id'})

@@ -3,14 +3,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { LandMarket } from 'src/entities/land-market.entity';
 import { Land } from 'src/entities/land.entity';
 import { MarketType } from 'src/entities/market-type.entity';
+import { Notifications } from 'src/entities/notifications.entity';
 import { User } from 'src/entities/user.entity';
 import { ValidateException } from 'src/Exception/ValidateException';
 import LandResponseModel from 'src/model/lands/LandResponseModel';
 import BuyLandOnMarketRequestModel from 'src/model/market/BuyLandOnMarketRequestModel';
 import LandMarketRequestModel from 'src/model/market/LandMarketRequestModel';
+import NotificationsRequestModel from 'src/model/notifications/NotificationsRequestModel';
 import { Repository } from 'typeorm';
 import { LandService } from './land.service';
 import { MarketTypeService } from './market-type.service';
+import { NotificationsService } from './notifications.service';
 import { UserService } from './user.service';
 
 @Injectable()
@@ -20,7 +23,8 @@ export class LandMarketService {
     @InjectRepository(LandMarket) private landMarketRepo: Repository<LandMarket>,
     private landService: LandService,
     private userService: UserService,
-    private marketTypeService: MarketTypeService
+    private marketTypeService: MarketTypeService,
+    private notificationService: NotificationsService
   ) {}
 
   public async findAll(): Promise<Array<LandMarket>> {
@@ -51,6 +55,15 @@ export class LandMarketService {
     }
     if (landOnMarket.ownerUserTokenId.userTokenId === request.fromUserTokenId) {
       const land: LandResponseModel = await this.landService.transferLand(request.fromUserTokenId, request.toUserTokenId, request.landTokenId)
+      const notificationRequest: NotificationsRequestModel = {
+        activityId: 2,
+        dateTime: new Date(),
+        fromUserTokenId: request.toUserTokenId,
+        ownerTokenId: request.fromUserTokenId,
+        landTokenId: request.landTokenId,
+        price: landOnMarket.price
+      }
+      const notification: Notifications = await this.notificationService.addNotification(notificationRequest)
       await this.landMarketRepo.delete(landOnMarket)
       return land
     }

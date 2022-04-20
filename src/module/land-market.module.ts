@@ -5,6 +5,7 @@ import { LandMarket } from 'src/entities/land-market.entity';
 import { LandMarketService } from 'src/service/land-market.service';
 import { LandModule } from './land.module';
 import { MarketTypeModule } from './market-type.module';
+import { NotificationsModule } from './notifications.module';
 import { UserModule } from './user.module';
 
 @Module({
@@ -12,7 +13,8 @@ import { UserModule } from './user.module';
     TypeOrmModule.forFeature([LandMarket]),
     UserModule,
     LandModule,
-    MarketTypeModule
+    MarketTypeModule,
+    NotificationsModule
   ],
   controllers: [LandMarketController],
   providers: [LandMarketService],
