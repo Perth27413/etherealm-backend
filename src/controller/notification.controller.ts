@@ -5,6 +5,7 @@ import { LogTransactions } from 'src/entities/log-transactions.entity';
 import { LogTransactionsService } from 'src/service/log-transactions.service';
 import { Notifications } from 'src/entities/notifications.entity';
 import { NotificationsService } from 'src/service/notifications.service';
+import NotificationsResponseModel from 'src/model/notifications/NotificationsResponseModel';
 
 @Controller('api/notification')
 export default class NotificationController {
@@ -17,8 +18,8 @@ export default class NotificationController {
   }
 
   @Get('/:userTokenId')
-  public async findNotificationByUserTokenId(@Param("userTokenId") userTokenId: string): Promise<Array<Notifications>> {
-    let notification: Array<Notifications> = await this.notificationService.findNotificationByUserTokenId(userTokenId)
+  public async findNotificationByUserTokenId(@Param("userTokenId") userTokenId: string): Promise<Array<NotificationsResponseModel>> {
+    let notification: Array<NotificationsResponseModel> = await this.notificationService.findNotificationByUserTokenId(userTokenId)
     return notification
   }
   

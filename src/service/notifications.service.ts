@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Notifications } from 'src/entities/notifications.entity';
 import NotificationsRequestModel from 'src/model/notifications/NotificationsRequestModel';
+import NotificationsResponseModel from 'src/model/notifications/NotificationsResponseModel';
 import { Repository } from 'typeorm';
 import { LandService } from './land.service';
 import { NotificationActivityService } from './notification-activity.service';
@@ -22,10 +23,9 @@ export class NotificationsService {
     return result
   }
 
-  public async findNotificationByUserTokenId(userTokenId: string): Promise<Array<Notifications>> {
+  public async findNotificationByUserTokenId(userTokenId: string): Promise<Array<NotificationsResponseModel>> {
     let result: Array<Notifications> = await this.notificationRepo.find({where: {ownerUserTokenId: userTokenId}, relations: ['activityId', 'ownerUserTokenId', 'fromUserTokenId', 'landTokenId']})
-    console.log(result)
-    return result
+    return this.mapNotificationEntityToNotificationResponse(result)
   }
 
   public async addNotification(request: NotificationsRequestModel): Promise<Notifications> {
@@ -44,6 +44,21 @@ export class NotificationsService {
       notificationId: null,
       activityId: await this.notificationActivityService.findActivityById(request.activityId)
     }
+    return result
+  }
+
+  private mapNotificationEntityToNotificationResponse(notification: Array<Notifications>): Array<NotificationsResponseModel> {
+    const result: Array<NotificationsResponseModel> = []
+    notification.forEach((item: Notifications) => {
+      const data: NotificationsResponseModel = {
+        activity: item.activityId.activityName,
+        fromUserTokenId: item.fromUserTokenId.userTokenId,
+        ownerUserTokenId: item.ownerUserTokenId.userTokenId,
+        landName: item.landTokenId.landName,
+        dateTime: item.dateTime.toLocaleString().replace(',', '')
+      }
+      result.push(data)
+    })
     return result
   }
 
