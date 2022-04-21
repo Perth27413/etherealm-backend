@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LandMarketController } from 'src/controller/land-market.controller';
 import { LandMarket } from 'src/entities/land-market.entity';
@@ -12,9 +12,9 @@ import { UserModule } from './user.module';
   imports: [
     TypeOrmModule.forFeature([LandMarket]),
     UserModule,
-    LandModule,
     MarketTypeModule,
-    NotificationsModule
+    NotificationsModule,
+    LandModule
   ],
   controllers: [LandMarketController],
   providers: [LandMarketService],

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LandStatus } from 'src/entities/land-status.entity';
 import DataNotFoundException from 'src/Exception/DataNotFoundException';
@@ -13,19 +13,21 @@ import { LandSize } from 'src/entities/land-size.entity';
 import PurchaseLandRequestModel from 'src/model/lands/PurchaseLandRequestModel';
 import LandResponseModel from 'src/model/lands/LandResponseModel';
 import CoordinatesModel from 'src/model/lands/CoordinatesModel';
+import { LandMarket } from 'src/entities/land-market.entity';
 
 @Injectable()
 export class LandService {
 
   constructor(
     @InjectRepository(Land) private landRepo: Repository<Land>,
+    @InjectRepository(LandMarket) private landMarketRepo: Repository<LandMarket>,
     private landStatusService: LandStatusService,
     private landSizeService: LandSizeService
   ) {}
 
   public async findAll(): Promise<Array<LandResponseModel>> {
     let allLands: Array<Land> = await this.landRepo.find({relations: ["landStatus", "landSize"]})
-    let results: Array<LandResponseModel> = this.mapLandsToLandResponseModel(allLands)
+    let results: Array<LandResponseModel> = await this.mapLandsToLandResponseModel(allLands)
     return results
   }
 
@@ -34,7 +36,7 @@ export class LandService {
     if (!land) {
       throw new DataNotFoundException
     }
-    let result: LandResponseModel = this.mapLandToLandResponseModel(land)
+    let result: LandResponseModel = await this.mapLandToLandResponseModel(land)
     return result
   }
 
@@ -51,7 +53,7 @@ export class LandService {
     if (!land.length) {
       return []
     }
-    let result: Array<LandResponseModel> = this.mapLandsToLandResponseModel(land)
+    let result: Array<LandResponseModel> = await this.mapLandsToLandResponseModel(land)
     return result
   }
 
@@ -73,7 +75,7 @@ export class LandService {
   public async updateLand(landRequest: LandRequestModel): Promise<LandResponseModel> {
     let land: Land = await this.mapLandRequestModelToLandEntity(landRequest)
     land = await this.landRepo.save(land)
-    let result: LandResponseModel = this.mapLandToLandResponseModel(land)
+    let result: LandResponseModel = await this.mapLandToLandResponseModel(land)
     return result
   }
 
@@ -83,7 +85,7 @@ export class LandService {
       land.landOwnerTokenId = purchaseLandRequest.ownerTokenId
       land.landStatus = await this.landStatusService.findStatusById(2)
       land = await this.landRepo.save(land)
-      let result: LandResponseModel = this.mapLandToLandResponseModel(land)
+      let result: LandResponseModel = await this.mapLandToLandResponseModel(land)
       return result
     } catch (error) {
       console.error(error)
@@ -105,7 +107,7 @@ export class LandService {
       exists.landOwnerTokenId = to
       exists.landStatus = status      
       const land: Land = await this.landRepo.save(exists)
-      const result: LandResponseModel = this.mapLandToLandResponseModel(land)
+      const result: LandResponseModel = await this.mapLandToLandResponseModel(land)
       return result
     } else {
       throw new ValidateException('Land owner is invalid.')
@@ -147,16 +149,17 @@ export class LandService {
     return null
   }
 
-  private mapLandsToLandResponseModel(lands: Array<Land>): Array<LandResponseModel> {
+  private async mapLandsToLandResponseModel(lands: Array<Land>): Promise<Array<LandResponseModel>> {
     let result: Array<LandResponseModel> = []
-    lands.forEach((land: Land) => {
-      let data: LandResponseModel = this.mapLandToLandResponseModel(land)
+    for await (const land of lands) {
+      let data: LandResponseModel = await this.mapLandToLandResponseModel(land)
       result.push(data)
-    })
+    }
     return result
   }
 
-  private mapLandToLandResponseModel(land: Land): LandResponseModel {
+  private async mapLandToLandResponseModel(land: Land): Promise<LandResponseModel> {
+    const landOnMarket: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: land.landTokenId}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
     let location: CoordinatesModel = {
       x: land.landLocation.split(',').map(item => Number(item))[0],
       y: land.landLocation.split(',').map(item => Number(item))[1]
@@ -175,7 +178,8 @@ export class LandService {
       landStatus: land.landStatus,
       landAssets: land.landAssets,
       landSize: land.landSize,
-      onRecommend: land.onRecommend
+      onRecommend: land.onRecommend,
+      price: landOnMarket ? landOnMarket.price : null
     }
     return result
   }

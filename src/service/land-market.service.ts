@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LandMarket } from 'src/entities/land-market.entity';
 import { Land } from 'src/entities/land.entity';
@@ -24,11 +24,17 @@ export class LandMarketService {
     private landService: LandService,
     private userService: UserService,
     private marketTypeService: MarketTypeService,
+    
     private notificationService: NotificationsService
   ) {}
 
   public async findAll(): Promise<Array<LandMarket>> {
     let result: Array<LandMarket> = await this.landMarketRepo.find({relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
+    return result
+  }
+
+  public async findByLandTokenId(landTokenId: string): Promise<LandMarket> {
+    let result: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: landTokenId}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
     return result
   }
 

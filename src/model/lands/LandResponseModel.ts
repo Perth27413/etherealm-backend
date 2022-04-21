@@ -13,4 +13,5 @@ export default class LandResponseModel {
   public onRecommend: boolean = Boolean()
   public landStatus: LandStatus = new LandStatus
   public landSize: LandSize = new LandSize
+  public price: number | null = null
 }
