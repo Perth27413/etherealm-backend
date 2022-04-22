@@ -5,10 +5,13 @@ import { Land } from 'src/entities/land.entity';
 import { MarketType } from 'src/entities/market-type.entity';
 import { Notifications } from 'src/entities/notifications.entity';
 import { User } from 'src/entities/user.entity';
+import DataNotFoundException from 'src/Exception/DataNotFoundException';
 import { ValidateException } from 'src/Exception/ValidateException';
 import LandResponseModel from 'src/model/lands/LandResponseModel';
 import BuyLandOnMarketRequestModel from 'src/model/market/BuyLandOnMarketRequestModel';
 import LandMarketRequestModel from 'src/model/market/LandMarketRequestModel';
+import RemoveLandOnMarketRequest from 'src/model/market/RemoveLandOnMarketRequest';
+import UpdateLandPriceOnMarketRequestModel from 'src/model/market/UpdateLandPriceOnMarketRequestModel';
 import NotificationsRequestModel from 'src/model/notifications/NotificationsRequestModel';
 import { Repository } from 'typeorm';
 import { LandService } from './land.service';
@@ -52,6 +55,25 @@ export class LandMarketService {
     const data: LandMarket = await this.mapLandMarketRequestModelToLandMarket(request)
     let result: LandMarket = await this.landMarketRepo.save(data)
     return result
+  }
+
+  public async updateLandPriceOnMarket(request: UpdateLandPriceOnMarketRequestModel): Promise<LandMarket> {
+    const exists: LandMarket = await this.landMarketRepo.findOne({where: {landMarketId: request.landMarketId, ownerUserTokenId: request.ownerTokenId}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
+    if (exists) {
+      exists.price = request.price
+      const result: LandMarket = await this.landMarketRepo.save(exists)
+      return result
+    }
+    throw new DataNotFoundException
+  }
+
+  public async removeFromMarket(request: RemoveLandOnMarketRequest): Promise<string> {
+    const exists: LandMarket = await this.landMarketRepo.findOne({where: {landMarketId: request.landMarketId, ownerUserTokenId: request.ownerTokenId}})
+    if (exists) {
+      await this.landMarketRepo.delete(exists)
+      return 'Cancel listing on market Success'
+    }
+    throw new DataNotFoundException
   }
 
   public async buyLandOnMarket(request: BuyLandOnMarketRequestModel): Promise<LandResponseModel> {
