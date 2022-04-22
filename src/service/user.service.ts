@@ -30,6 +30,22 @@ export class UserService {
     }
   }
 
+  public async updateUserProfileByTokenId(userRequest: User): Promise<User> {
+    try {
+      const existsUser: User = await this.checkUserIsExists(userRequest.userTokenId)
+      if (JSON.stringify(existsUser) === JSON.stringify(userRequest)) {
+        return existsUser
+      }
+      if (existsUser) {
+        let user: User = await this.userRepo.save(userRequest)
+        return user
+      }
+      throw new DataNotFoundException
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   public async findUserByTokenId(userTokenId: string): Promise<User> {
     let user: User = await this.userRepo.findOne(userTokenId)
     if (!user) {

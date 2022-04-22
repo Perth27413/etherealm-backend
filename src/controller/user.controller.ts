@@ -18,4 +18,10 @@ export class UserController {
     return user
   }
 
+  @Post('/user/update')
+  public async updateUserProfileByTokenId(@Body() userRequest: User): Promise<User> {
+    const user: User = await this.userService.updateUserProfileByTokenId(userRequest)
+    return user
+  }
+
 }
