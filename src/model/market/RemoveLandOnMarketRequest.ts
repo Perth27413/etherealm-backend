@@ -1,4 +1,4 @@
 export default class RemoveLandOnMarketRequest {
-  public landMarketId: number = Number()
+  public landTokenId: string = String()
   public ownerTokenId: string = String()
 }

@@ -58,7 +58,7 @@ export class LandMarketService {
   }
 
   public async updateLandPriceOnMarket(request: UpdateLandPriceOnMarketRequestModel): Promise<LandMarket> {
-    const exists: LandMarket = await this.landMarketRepo.findOne({where: {landMarketId: request.landMarketId, ownerUserTokenId: request.ownerTokenId}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
+    const exists: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landTokenId, ownerUserTokenId: request.ownerTokenId}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
     if (exists) {
       exists.price = request.price
       const result: LandMarket = await this.landMarketRepo.save(exists)
@@ -68,7 +68,7 @@ export class LandMarketService {
   }
 
   public async removeFromMarket(request: RemoveLandOnMarketRequest): Promise<string> {
-    const exists: LandMarket = await this.landMarketRepo.findOne({where: {landMarketId: request.landMarketId, ownerUserTokenId: request.ownerTokenId}})
+    const exists: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landTokenId, ownerUserTokenId: request.ownerTokenId}})
     if (exists) {
       await this.landMarketRepo.delete(exists)
       return 'Cancel listing on market Success'
