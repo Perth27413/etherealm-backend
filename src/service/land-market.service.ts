@@ -70,6 +70,7 @@ export class LandMarketService {
   public async removeFromMarket(request: RemoveLandOnMarketRequest): Promise<string> {
     const exists: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landTokenId, ownerUserTokenId: request.ownerTokenId}})
     if (exists) {
+      await this.landService.updateLandStatus(request.landTokenId, 2)
       await this.landMarketRepo.delete(exists)
       return 'Cancel listing on market Success'
     }
