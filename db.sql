@@ -139,5 +139,13 @@ ALTER TABLE public.notifications ADD CONSTRAINT notifications_pk PRIMARY KEY (no
 ALTER TABLE public.log_transactions ADD log_transactions_id serial NOT NULL;
 ALTER TABLE public.log_transactions ADD CONSTRAINT log_transactions_pk PRIMARY KEY (log_transactions_id);
 
-
 ALTER TABLE public.land_market ADD fees float4 NOT NULL;
+
+
+ALTER TABLE public.log_description RENAME TO log_type;
+ALTER TABLE public.log_type RENAME COLUMN log_description_id TO log_type_id;
+ALTER TABLE public.log_type RENAME COLUMN log_description_name TO log_type_name;
+ALTER TABLE public.log_transactions RENAME COLUMN log_description TO log_type;
+
+
+ALTER TABLE public.log_transactions ADD date_time timestamp(0) NULL;

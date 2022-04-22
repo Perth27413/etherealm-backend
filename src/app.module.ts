@@ -8,7 +8,7 @@ import { LandStatusModule } from './module/land-status.module';
 import { LandSizeModule } from './module/land-size.module';
 import { UserModule } from './module/user.module';
 import { MarketTypeModule } from './module/market-type.module';
-import { LogDescriptionModule } from './module/log-description.module';
+import { LogTypeModule } from './module/log-type.module';
 import { NotificationActivityModule } from './module/notification-activity.module';
 import { LandMarketModule } from './module/land-market.module';
 import { NotificationsModule } from './module/notifications.module';
@@ -34,7 +34,7 @@ import { LogTransactionsModule } from './module/log-transactions.module';
     LandSizeModule,
     UserModule,
     MarketTypeModule,
-    LogDescriptionModule,
+    LogTypeModule,
     NotificationActivityModule,
     LandMarketModule,
     NotificationsModule,

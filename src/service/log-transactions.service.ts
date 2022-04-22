@@ -7,8 +7,8 @@ import TransactionsRequestModel from 'src/model/transactions/TransactionsRequest
 import { UserService } from './user.service';
 import { User } from 'src/entities/user.entity';
 import DataNotFoundException from 'src/Exception/DataNotFoundException';
-import { LogDescriptionService } from './log-description.service';
-import { LogDescription } from 'src/entities/log-description.entity';
+import { LogTypeService } from './log-type.service';
+import { LogType } from 'src/entities/log-type.entity';
 
 @Injectable()
 export class LogTransactionsService {
@@ -16,7 +16,7 @@ export class LogTransactionsService {
   constructor(
     @InjectRepository(LogTransactions) private logDescriptionRepo: Repository<LogTransactions>,
     private userService: UserService,
-    private logDescriptionService: LogDescriptionService
+    private logDescriptionService: LogTypeService
   ) {}
 
   public async findAll(): Promise<Array<TransactionsResponseModel>> {
@@ -25,12 +25,12 @@ export class LogTransactionsService {
     return result
   }
 
-  public async getTransactionByUserId(userTokenId): Promise<Array<TransactionsResponseModel>> {
+  public async getTransactionByUserId(userTokenId: string): Promise<Array<TransactionsResponseModel>> {
     let user: User = await this.userService.findUserByTokenId(userTokenId)
     if (!user) {
       throw new DataNotFoundException
     }
-    let data: Array<LogTransactions> = await this.logDescriptionRepo.find({where: {fromUserTokenId: userTokenId}, relations:['fromUserTokenId', 'toUserTokenId', 'logDescription']})
+    let data: Array<LogTransactions> = await this.logDescriptionRepo.find({where: {fromUserTokenId: userTokenId}, relations:['fromUserTokenId', 'toUserTokenId', 'logType']})
     let results: Array<TransactionsResponseModel> = this.mapTransactionsToResponse(data)
     return results
   }
@@ -58,7 +58,8 @@ export class LogTransactionsService {
       toUserTokenId: transactions.toUserTokenId.userTokenId,
       transactionBlock: transactions.transactionBlock,
       gasPrice: transactions.gasPrice,
-      logDescription: transactions.logDescription
+      logType: transactions.logType,
+      dateTime: transactions.dateTime.toLocaleString().replace(',', '')
     }
     return result
   }
@@ -66,14 +67,15 @@ export class LogTransactionsService {
   private async mapTransactionRequestToEntity(transactionsRequest: TransactionsRequestModel): Promise<LogTransactions> {
     let fromUser: User = await this.userService.findUserByTokenId(transactionsRequest.fromUserTokenId)
     let toUser: User = await this.userService.findUserByTokenId(transactionsRequest.toUserTokenId)
-    let description: LogDescription = await this.logDescriptionService.findByID(transactionsRequest.logDescription)
+    let description: LogType = await this.logDescriptionService.findById(transactionsRequest.logType)
     let result: LogTransactions = {
-      logTransactionsId: transactionsRequest.logTransactionsId,
+      logTransactionsId: null,
       fromUserTokenId: fromUser,
       toUserTokenId: toUser,
       transactionBlock: transactionsRequest.transactionBlock,
       gasPrice: transactionsRequest.gasPrice,
-      logDescription: description
+      logType: description,
+      dateTime: new Date()
     }
     return result
   }

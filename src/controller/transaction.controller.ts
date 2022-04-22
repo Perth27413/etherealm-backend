@@ -14,7 +14,7 @@ export default class TransactionController {
     return transaction
   }
 
-  @Post()
+  @Post('/add')
   public async insertTransaction(@Body() transactionRequest: TransactionsRequestModel): Promise<TransactionsResponseModel> {
     let transaction: TransactionsResponseModel = await this.transactionService.addTransaction(transactionRequest)
     return transaction

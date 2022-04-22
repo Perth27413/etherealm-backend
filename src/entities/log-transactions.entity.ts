@@ -1,11 +1,11 @@
 import {Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn} from "typeorm";
 import { User } from "./user.entity";
-import { LogDescription } from "./log-description.entity";
+import { LogType } from "./log-type.entity";
 
 @Entity({name: "log_transactions"})
 export class LogTransactions {
 
-    @PrimaryColumn({name: 'log_transactions_id'})
+    @PrimaryGeneratedColumn({name: 'log_transactions_id'})
     logTransactionsId: number
 
     @ManyToOne(() => User, user => user.userTokenId)
@@ -22,8 +22,11 @@ export class LogTransactions {
     @Column({name: 'gas_price'})
     gasPrice: number
 
-    @ManyToOne(() => LogDescription, logDescription => logDescription.logDescriptionId)
-    @JoinColumn({name: 'log_description'})
-    logDescription: LogDescription
+    @ManyToOne(() => LogType, logType => logType.logTypeId)
+    @JoinColumn({name: 'log_type'})
+    logType: LogType
+
+    @Column({name: 'date_time'})
+    dateTime: Date
 
 }

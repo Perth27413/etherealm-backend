@@ -1,3 +1,4 @@
+import { LogType } from "src/entities/log-type.entity"
 import LogDescriptionModel from "./LogDescriptionModel"
 
 export default class TransactionsResponseModel {
@@ -6,5 +7,6 @@ export default class TransactionsResponseModel {
   public toUserTokenId: string = String()
   public transactionBlock: string = String()
   public gasPrice: number = Number()
-  public logDescription: LogDescriptionModel = new LogDescriptionModel()
+  public logType: LogType = new LogType
+  public dateTime: string = String()
 }
