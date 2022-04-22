@@ -47,7 +47,7 @@ export class UserService {
   }
 
   public async findUserByTokenId(userTokenId: string): Promise<User> {
-    let user: User = await this.userRepo.findOne(userTokenId)
+    let user: User = await this.userRepo.findOne(userTokenId.toLowerCase())
     if (!user) {
       throw new DataNotFoundException
     }
@@ -55,7 +55,7 @@ export class UserService {
   }
 
   private async checkUserIsExists(userTokenId: string): Promise<User | null> {
-    let user: User = await this.userRepo.findOne(userTokenId)
+    let user: User = await this.userRepo.findOne(userTokenId.toLowerCase())
     if (user) {
       return user
     }
