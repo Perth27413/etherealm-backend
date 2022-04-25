@@ -51,4 +51,10 @@ export class LandController {
     return land
   }
 
+  @Post('/test')
+  public async test(@Body() test: any): Promise<any> {
+    console.log(test)
+    return test
+  }
+
 }
