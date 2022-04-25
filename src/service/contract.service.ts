@@ -10,8 +10,14 @@ export class ContractService {
 
   public async getTransaction(tx: string): Promise<ethers.providers.TransactionReceipt> {
     await this.provider.getBlockNumber()
-    const result = await this.provider.getTransaction(tx)
-    const receipt: ethers.providers.TransactionReceipt = await result.wait()
+    let receipt = null
+    while (true) {
+      const result = await this.provider.getTransaction(tx)
+      if (result) {
+        receipt = await result.wait()
+        break
+      }
+    }
     return receipt
   }
 }
