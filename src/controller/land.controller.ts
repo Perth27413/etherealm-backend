@@ -53,7 +53,8 @@ export class LandController {
 
   @Post('/test')
   public async test(@Body() test: any): Promise<any> {
-    console.log(test)
+    const reciept = await test.wait()
+    console.log(reciept)
     return test
   }
 
