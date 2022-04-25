@@ -14,6 +14,7 @@ import PurchaseLandRequestModel from 'src/model/lands/PurchaseLandRequestModel';
 import LandResponseModel from 'src/model/lands/LandResponseModel';
 import CoordinatesModel from 'src/model/lands/CoordinatesModel';
 import { LandMarket } from 'src/entities/land-market.entity';
+import { ContractService } from './contract.service';
 
 @Injectable()
 export class LandService {
@@ -22,7 +23,8 @@ export class LandService {
     @InjectRepository(Land) private landRepo: Repository<Land>,
     @InjectRepository(LandMarket) private landMarketRepo: Repository<LandMarket>,
     private landStatusService: LandStatusService,
-    private landSizeService: LandSizeService
+    private landSizeService: LandSizeService,
+    private contractService: ContractService
   ) {}
 
   public async findAll(): Promise<Array<LandResponseModel>> {

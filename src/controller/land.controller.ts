@@ -53,12 +53,4 @@ export class LandController {
     return land
   }
 
-  @Post('/test')
-  public async test(@Body() test: any): Promise<any> {
-    const provider = new ethers.providers.EtherscanProvider()
-    const reciept = await provider.getTransactionReceipt('0x61e1ec0fb5764525aa4aa7f34d5be8d0a60cafb57f79c626dadea8b861934377')
-    console.log(reciept)
-    return test
-  }
-
 }

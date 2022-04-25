@@ -8,6 +8,7 @@ import { LandStatusModule } from './land-status.module';
 import { LandSizeModule } from './land-size.module';
 import { LandMarketModule } from './land-market.module';
 import { LandMarket } from 'src/entities/land-market.entity';
+import { ContractService } from 'src/service/contract.service';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { LandMarket } from 'src/entities/land-market.entity';
     LandSizeModule,
   ],
   controllers: [LandController],
-  providers: [LandService],
+  providers: [LandService, ContractService],
   exports: [LandService]
 })
 export class LandModule {}

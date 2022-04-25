@@ -1,5 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ethers } from 'ethers';
 import { LandMarket } from 'src/entities/land-market.entity';
 import { Land } from 'src/entities/land.entity';
 import { MarketType } from 'src/entities/market-type.entity';
@@ -13,8 +14,12 @@ import LandMarketRequestModel from 'src/model/market/LandMarketRequestModel';
 import RemoveLandOnMarketRequest from 'src/model/market/RemoveLandOnMarketRequest';
 import UpdateLandPriceOnMarketRequestModel from 'src/model/market/UpdateLandPriceOnMarketRequestModel';
 import NotificationsRequestModel from 'src/model/notifications/NotificationsRequestModel';
+import TransactionsRequestModel from 'src/model/transactions/TransactionsRequestModel';
+import TransactionsResponseModel from 'src/model/transactions/TransactionsResponseModel';
 import { Repository } from 'typeorm';
+import { ContractService } from './contract.service';
 import { LandService } from './land.service';
+import { LogTransactionsService } from './log-transactions.service';
 import { MarketTypeService } from './market-type.service';
 import { NotificationsService } from './notifications.service';
 import { UserService } from './user.service';
@@ -27,8 +32,9 @@ export class LandMarketService {
     private landService: LandService,
     private userService: UserService,
     private marketTypeService: MarketTypeService,
-    
-    private notificationService: NotificationsService
+    private contractService: ContractService,
+    private notificationService: NotificationsService,
+    private logTransactionService: LogTransactionsService
   ) {}
 
   public async findAll(): Promise<Array<LandMarket>> {
@@ -83,19 +89,42 @@ export class LandMarketService {
       throw new ValidateException('This Land is not list on market.')
     }
     if (landOnMarket.ownerUserTokenId.userTokenId === request.fromUserTokenId) {
-      const land: LandResponseModel = await this.landService.transferLand(request.fromUserTokenId, request.toUserTokenId, request.landTokenId)
-      const notificationRequest: NotificationsRequestModel = {
-        activityId: 2,
-        dateTime: new Date(),
-        fromUserTokenId: request.toUserTokenId,
-        ownerTokenId: request.fromUserTokenId,
-        landTokenId: request.landTokenId,
-        price: landOnMarket.price
+      const receipt = await this.contractService.getTransaction(request.hash)
+      if (receipt.status) {
+        const land: LandResponseModel = await this.landService.transferLand(request.fromUserTokenId, request.toUserTokenId, request.landTokenId)
+        const notificationRequest: NotificationsRequestModel = this.mapBuyLandRequestToNotificationRequest(request, landOnMarket.price)
+        const notification: Notifications = await this.notificationService.addNotification(notificationRequest)
+        const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel(receipt, landOnMarket.ownerUserTokenId.userTokenId, 1)
+        const transaction: TransactionsResponseModel = await this.logTransactionService.addTransaction(transactionRequestModel)
+        await this.landMarketRepo.delete(landOnMarket)
+        return land
+      } else {
+        throw new ValidateException('Transaction failed.')
       }
-      const notification: Notifications = await this.notificationService.addNotification(notificationRequest)
-      await this.landMarketRepo.delete(landOnMarket)
-      return land
     }
+  }
+
+  private mapReceiptToTransactionRequestModel(receipt: ethers.providers.TransactionReceipt, ownerTokenId: string, type: number): TransactionsRequestModel {
+    const result: TransactionsRequestModel = {
+      fromUserTokenId: receipt.from,
+      toUserTokenId: ownerTokenId,
+      logType: type,
+      transactionBlock: receipt.transactionHash,
+      gasPrice: Number(ethers.utils.formatEther(receipt.gasUsed.mul(receipt.effectiveGasPrice)))
+    }
+    return result
+  }
+
+  private mapBuyLandRequestToNotificationRequest(request: BuyLandOnMarketRequestModel, price: number): NotificationsRequestModel {
+    const notificationRequest: NotificationsRequestModel = {
+      activityId: 2,
+      dateTime: new Date(),
+      fromUserTokenId: request.toUserTokenId,
+      ownerTokenId: request.fromUserTokenId,
+      landTokenId: request.landTokenId,
+      price: price
+    }
+    return notificationRequest
   }
 
   private async mapLandMarketRequestModelToLandMarket(request: LandMarketRequestModel): Promise<LandMarket> {
