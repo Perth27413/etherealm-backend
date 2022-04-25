@@ -4,6 +4,8 @@ import LandResponseModel from 'src/model/lands/LandResponseModel';
 import PurchaseLandRequestModel from 'src/model/lands/PurchaseLandRequestModel';
 import { Land } from '../entities/land.entity';
 import { LandService } from '../service/land.service';
+import { ethers } from 'ethers'
+
 
 @Controller('api/lands')
 export class LandController {
@@ -53,7 +55,8 @@ export class LandController {
 
   @Post('/test')
   public async test(@Body() test: any): Promise<any> {
-    const reciept = await test.wait()
+    const provider = new ethers.providers.EtherscanProvider()
+    const reciept = await provider.getTransactionReceipt('0x61e1ec0fb5764525aa4aa7f34d5be8d0a60cafb57f79c626dadea8b861934377')
     console.log(reciept)
     return test
   }
