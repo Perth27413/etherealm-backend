@@ -13,6 +13,7 @@ import { NotificationActivityModule } from './module/notification-activity.modul
 import { LandMarketModule } from './module/land-market.module';
 import { NotificationsModule } from './module/notifications.module';
 import { LogTransactionsModule } from './module/log-transactions.module';
+import { OfferLandModule } from './module/offer-land.module';
 
 
 @Module({
@@ -38,7 +39,8 @@ import { LogTransactionsModule } from './module/log-transactions.module';
     NotificationActivityModule,
     LandMarketModule,
     NotificationsModule,
-    LogTransactionsModule
+    LogTransactionsModule,
+    OfferLandModule
   ],
   controllers: [AppController],
   providers: [AppService],
