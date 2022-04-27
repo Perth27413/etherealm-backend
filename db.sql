@@ -160,3 +160,18 @@ ALTER TABLE public.log_transactions RENAME COLUMN date_time TO created_at;
 ALTER TABLE public.land_market ADD created_at timestamp(0) NULL;
 ALTER TABLE public.land_market ADD updated_at timestamp(0) NULL;
 ALTER TABLE public.land_market ADD is_delete bool NULL;
+
+
+CREATE TABLE public.offer_land (
+	offer_id serial NOT NULL,
+	from_user_token_id varchar NOT NULL,
+	land_token_id varchar NOT NULL,
+	offer_price float4 NOT NULL,
+	is_enough_point bool NOT NULL,
+	created_at timestamp(0) NOT NULL,
+	updated_at timestamp(0) NOT NULL,
+	is_delete bool NOT NULL,
+	CONSTRAINT offer_land_pk PRIMARY KEY (offer_id),
+	CONSTRAINT offer_land_fk_1 FOREIGN KEY (from_user_token_id) REFERENCES public."user"(user_token_id),
+	CONSTRAINT offer_land_fk FOREIGN KEY (land_token_id) REFERENCES public.land(land_token_id)
+);
