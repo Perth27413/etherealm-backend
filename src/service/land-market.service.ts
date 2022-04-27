@@ -38,17 +38,17 @@ export class LandMarketService {
   ) {}
 
   public async findAll(): Promise<Array<LandMarket>> {
-    let result: Array<LandMarket> = await this.landMarketRepo.find({relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
+    let result: Array<LandMarket> = await this.landMarketRepo.find({where: {isDelete: false}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
     return result
   }
 
   public async findByLandTokenId(landTokenId: string): Promise<LandMarket> {
-    let result: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: landTokenId}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
+    let result: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: landTokenId, isDelete: false}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
     return result
   }
 
   public async addLandToLandMarket(request: LandMarketRequestModel): Promise<LandMarket> {
-    const exists: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landTokenId}})
+    const exists: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landTokenId, isDelete: false}})
     if (exists) {
       throw new ValidateException('Land is already listed on market.')
     }
@@ -64,7 +64,7 @@ export class LandMarketService {
   }
 
   public async updateLandPriceOnMarket(request: UpdateLandPriceOnMarketRequestModel): Promise<LandMarket> {
-    const exists: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landTokenId, ownerUserTokenId: request.ownerTokenId}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
+    const exists: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landTokenId, ownerUserTokenId: request.ownerTokenId, isDelete: false}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
     if (exists) {
       exists.price = request.price
       const result: LandMarket = await this.landMarketRepo.save(exists)
@@ -74,17 +74,18 @@ export class LandMarketService {
   }
 
   public async removeFromMarket(request: RemoveLandOnMarketRequest): Promise<string> {
-    const exists: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landTokenId, ownerUserTokenId: request.ownerTokenId}})
+    const exists: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landTokenId, ownerUserTokenId: request.ownerTokenId, isDelete: false}})
     if (exists) {
       await this.landService.updateLandStatus(request.landTokenId, 2)
-      await this.landMarketRepo.delete(exists)
+      exists.isDelete = true
+      await this.landMarketRepo.save(exists)
       return 'Cancel listing on market Success'
     }
     throw new DataNotFoundException
   }
 
   public async buyLandOnMarket(request: BuyLandOnMarketRequestModel): Promise<LandResponseModel> {
-    const landOnMarket: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landTokenId}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
+    const landOnMarket: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landTokenId, isDelete: false}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
     if (!landOnMarket) {
       throw new ValidateException('This Land is not list on market.')
     }
@@ -131,6 +132,7 @@ export class LandMarketService {
     const land: Land = await this.landService.findLandEntityByTokenId(request.landTokenId)
     const owner: User = await this.userService.findUserByTokenId(request.ownerUserTokenId)
     const marketType: MarketType = await this.marketTypeService.findTypeById(request.marketType)
+    const currentTime: Date = new Date()
     let result: LandMarket = {
       landTokenId: land,
       ownerUserTokenId: owner,
@@ -138,7 +140,10 @@ export class LandMarketService {
       price: request.price,
       marketType: marketType,
       landMarketId: null,
-      fees: this.calculateFees(request.price)
+      fees: this.calculateFees(request.price),
+      createdAt: currentTime,
+      updatedAt: currentTime,
+      isDelete: false
     }
     return result
   }

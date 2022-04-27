@@ -36,4 +36,13 @@ export class Land {
 
     @Column({name: 'on_recommend'})
     onRecommend: boolean
+
+    @Column({name: 'minimum_offer_price'})
+    minimumOfferPrice: number
+
+    @Column({name: 'created_at'})
+    createdAt: Date
+
+    @Column({name: 'updated_at'})
+    updatedAt: Date
 }

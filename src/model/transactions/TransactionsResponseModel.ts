@@ -8,5 +8,5 @@ export default class TransactionsResponseModel {
   public transactionBlock: string = String()
   public gasPrice: number = Number()
   public logType: LogType = new LogType
-  public dateTime: string = String()
+  public createdAt: string = String()
 }

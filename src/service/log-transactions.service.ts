@@ -59,7 +59,7 @@ export class LogTransactionsService {
       transactionBlock: transactions.transactionBlock,
       gasPrice: transactions.gasPrice,
       logType: transactions.logType,
-      dateTime: transactions.dateTime.toLocaleString().replace(',', '')
+      createdAt: transactions.createdAt.toLocaleString().replace(',', '')
     }
     return result
   }
@@ -75,7 +75,7 @@ export class LogTransactionsService {
       transactionBlock: transactionsRequest.transactionBlock,
       gasPrice: transactionsRequest.gasPrice,
       logType: description,
-      dateTime: new Date()
+      createdAt: new Date()
     }
     return result
   }

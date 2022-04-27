@@ -30,4 +30,12 @@ export class LandMarket {
     @Column({name: 'fees'})
     fees: number
 
+    @Column({name: 'created_at'})
+    createdAt: Date
+
+    @Column({name: 'updated_at'})
+    updatedAt: Date
+
+    @Column({name: 'is_delete'})
+    isDelete: boolean
 }

@@ -26,7 +26,7 @@ export class LogTransactions {
     @JoinColumn({name: 'log_type'})
     logType: LogType
 
-    @Column({name: 'date_time'})
-    dateTime: Date
+    @Column({name: 'created_at'})
+    createdAt: Date
 
 }

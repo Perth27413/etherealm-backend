@@ -121,6 +121,7 @@ export class LandService {
       let allLands: Array<Land> = await this.landRepo.find({relations: ["landStatus", "landSize"]})
       if (!allLands.length) {
         for (let index = 0; index < lands.length; index++) {
+          const currentTime: Date = new Date()
           let data: Land = {
             landTokenId: lands[index].tokenId,
             landName: `Land(${lands[index].location.x}, ${lands[index].location.y})`,
@@ -131,7 +132,10 @@ export class LandService {
             landStatus: await this.landStatusService.findStatusById(1), // status 1 = No Owner
             landAssets: '',
             landSize: await this.landSizeService.findSizeByValue(lands[index].end.x - lands[index].start.x),
-            onRecommend: false
+            onRecommend: false,
+            minimumOfferPrice: 0.00001,
+            createdAt: currentTime,
+            updatedAt: currentTime
           }
           await this.landRepo.save(data)
         }
@@ -189,6 +193,7 @@ export class LandService {
   private async mapLandRequestModelToLandEntity(landRequest: LandRequestModel): Promise<Land> {
     let status: LandStatus = await this.landStatusService.findStatusById(landRequest.landStatus)
     let size: LandSize = await this.landSizeService.findSizeById(landRequest.landSize)
+    const currentLand: Date = new Date()
     let result: Land = {
       landTokenId: landRequest.landTokenId,
       landName: landRequest.landName,
@@ -199,7 +204,10 @@ export class LandService {
       landStatus: status,
       landAssets: landRequest.landAssets,
       landSize: size,
-      onRecommend: landRequest.onRecommend
+      onRecommend: landRequest.onRecommend,
+      minimumOfferPrice: 0.00001,
+      createdAt: currentLand,
+      updatedAt: currentLand
     }
     return result
   }

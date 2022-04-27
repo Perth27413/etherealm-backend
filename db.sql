@@ -149,3 +149,14 @@ ALTER TABLE public.log_transactions RENAME COLUMN log_description TO log_type;
 
 
 ALTER TABLE public.log_transactions ADD date_time timestamp(0) NULL;
+
+
+ALTER TABLE public.land ADD minimum_offer_price float4 NULL;
+ALTER TABLE public.land ADD created_at timestamp(0) NULL;
+ALTER TABLE public.land ADD updated_at information_schema.time_stamp NULL;
+
+ALTER TABLE public.log_transactions RENAME COLUMN date_time TO created_at;
+
+ALTER TABLE public.land_market ADD created_at timestamp(0) NULL;
+ALTER TABLE public.land_market ADD updated_at timestamp(0) NULL;
+ALTER TABLE public.land_market ADD is_delete bool NULL;
