@@ -63,10 +63,12 @@ export class OfferLandService {
   }
 
   public async createOffer(request: CreateOfferLandRequestModel): Promise<OfferLand> {
-    // check point on smart contract
-    await this.contractService.getPointsFromUserTokenId(request.requestUserTokenId)
+    const points: number = await this.contractService.getPointsFromUserTokenId(request.requestUserTokenId)
+    if (points < request.offerPrice) {
+      throw new ValidateException('Points is not enough.')
+    }
     if (request.offerPrice < 0.00001) {
-      throw new ValidateException('Offer Price is invalid')
+      throw new ValidateException('Offer Price is invalid.')
     }
     const data: OfferLand = await this.createOfferRequestToOfferLand(request)
     const result: OfferLand = await this.offerLandRepo.save(data)

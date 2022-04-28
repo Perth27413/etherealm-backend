@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ethers } from 'ethers';
-import abi from './abi.json'
+import * as abi from './abi.json'
 
 @Injectable()
 export class ContractService {
 
   constructor() {
-    
+    this.getContract()
   }
 
   public signer: any = null
@@ -15,14 +15,10 @@ export class ContractService {
   private provider = new ethers.providers.AlchemyProvider("rinkeby")
 
   public async getContract(): Promise<void> {
+    await this.provider.getBlockNumber()
     const tempProvider = new ethers.providers.AlchemyProvider("rinkeby")
     await tempProvider.getBlockNumber()
-    // console.log(tempProvider.getSigner())
-    // let tempSigner = tempProvider.getSigner()
-    // this.signer = tempSigner
-    let tempContract = new ethers.Contract(this.contractAddress, abi)
-    console.log('-------------------------------------------------------------------')
-    console.log(tempContract)
+    let tempContract = new ethers.Contract(this.contractAddress, abi, this.provider)
     this.contract = tempContract
   }
 
@@ -40,10 +36,7 @@ export class ContractService {
   }
 
   public async getPointsFromUserTokenId(userTokenId: string): Promise<number> {
-    await this.provider.getBlockNumber()
-    await this.getContract()
     const points = await this.contract.pointOf(userTokenId)
-    console.log(points)
-    return points
+    return Number(ethers.utils.formatEther(points))
   }
 }
