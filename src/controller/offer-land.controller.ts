@@ -6,6 +6,7 @@ import OfferLandPageRequestModel from 'src/model/offer/OfferLandPageRequestModel
 import OfferLandPageResponseModel from 'src/model/offer/OfferLandPageResponseModel';
 import CreateOfferLandRequestModel from 'src/model/offer/CreateOfferLandRequestModel';
 import CancelOfferLandRequestModel from 'src/model/offer/CancelOfferLandRequestModel';
+import OfferingLandPageRequestModel from 'src/model/offer/OfferingLandPageRequestModel';
 
 @Controller('api/offers')
 export default class OfferLandController {
@@ -33,6 +34,12 @@ export default class OfferLandController {
   public async cancelOfferLand(@Body() request: CancelOfferLandRequestModel): Promise<OfferLand> {
     const result: OfferLand = await this.offerLandService.cancelOffer(request)
     return result
+  }
+
+  @Patch('/user/page')
+  public async findOfferingByUserTokenId(@Body() request: OfferingLandPageRequestModel): Promise<OfferLandPageResponseModel> {
+    const results: OfferLandPageResponseModel = await this.offerLandService.findOfferingLandByUserTokenId(request)
+    return results
   }
   
 }
