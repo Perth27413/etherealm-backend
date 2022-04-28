@@ -5,6 +5,7 @@ import { OfferLandService } from 'src/service/offer-land.service';
 import OfferLandPageRequestModel from 'src/model/offer/OfferLandPageRequestModel';
 import OfferLandPageResponseModel from 'src/model/offer/OfferLandPageResponseModel';
 import CreateOfferLandRequestModel from 'src/model/offer/CreateOfferLandRequestModel';
+import CancelOfferLandRequestModel from 'src/model/offer/CancelOfferLandRequestModel';
 
 @Controller('api/offers')
 export default class OfferLandController {
@@ -25,6 +26,12 @@ export default class OfferLandController {
   @Post('/create')
   public async createOfferLand(@Body() request: CreateOfferLandRequestModel): Promise<OfferLand> {
     const result: OfferLand = await this.offerLandService.createOffer(request)
+    return result
+  }
+
+  @Patch('/cancel')
+  public async cancelOfferLand(@Body() request: CancelOfferLandRequestModel): Promise<OfferLand> {
+    const result: OfferLand = await this.offerLandService.cancelOffer(request)
     return result
   }
   

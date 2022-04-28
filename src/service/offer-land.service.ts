@@ -5,6 +5,7 @@ import { OfferLand } from 'src/entities/offer-land.entity';
 import { User } from 'src/entities/user.entity';
 import DataNotFoundException from 'src/Exception/DataNotFoundException';
 import { ValidateException } from 'src/Exception/ValidateException';
+import CancelOfferLandRequestModel from 'src/model/offer/CancelOfferLandRequestModel';
 import CreateOfferLandRequestModel from 'src/model/offer/CreateOfferLandRequestModel';
 import OfferLandPageRequestModel from 'src/model/offer/OfferLandPageRequestModel';
 import OfferLandPageResponseModel from 'src/model/offer/OfferLandPageResponseModel';
@@ -31,7 +32,7 @@ export class OfferLandService {
   public async findOfferLandByLandTokenId(request: OfferLandPageRequestModel): Promise<OfferLandPageResponseModel> {
     const pageItem: number = 2
     const [offers, total] = await this.offerLandRepo.findAndCount({
-      where: {landTokenId: request.landTokenId, isDelete: false},
+      where: {landTokenId: request.landTokenId.toLowerCase(), isDelete: false},
       order: {
         createAt: request.sortBy == 1 ? 'DESC' : 'ASC' // 1.) latest   2.) oldest  3.) highest price  4.) lowest price
       },
@@ -40,7 +41,7 @@ export class OfferLandService {
       take: pageItem
     })
     if (!offers.length) {
-      throw new DataNotFoundException
+      return new OfferLandPageResponseModel
     }
     if (request.sortBy > 4) {
       throw new ValidateException('Sort Type is invalid.')
@@ -63,6 +64,10 @@ export class OfferLandService {
   }
 
   public async createOffer(request: CreateOfferLandRequestModel): Promise<OfferLand> {
+    const exists: OfferLand = await this.offerLandRepo.findOne({where: {landTokenId: request.landTokenId.toLowerCase(), fromUserTokenId: request.requestUserTokenId.toLowerCase(), isDelete: false}})
+    if (exists) {
+      throw new ValidateException('Offer is exists on this land.')
+    }
     const points: number = await this.contractService.getPointsFromUserTokenId(request.requestUserTokenId)
     if (points < request.offerPrice) {
       throw new ValidateException('Points is not enough.')
@@ -75,9 +80,19 @@ export class OfferLandService {
     return result
   }
 
+  public async cancelOffer(request: CancelOfferLandRequestModel): Promise<OfferLand> {
+    let exists: OfferLand = await this.offerLandRepo.findOne({where: {landTokenId: request.landTokenId.toLowerCase(), fromUserTokenId: request.requestUserTokenId.toLowerCase(), isDelete: false}})
+    if (exists) {
+      exists.isDelete = true
+      const result: OfferLand = await this.offerLandRepo.save(exists)
+      return result
+    }
+    throw new DataNotFoundException
+  }
+
   private async createOfferRequestToOfferLand(request: CreateOfferLandRequestModel): Promise<OfferLand> {
-    const land: Land = await this.landService.findLandEntityByTokenId(request.landTokenId)
-    const user: User = await this.userService.findUserByTokenId(request.requestUserTokenId)
+    const land: Land = await this.landService.findLandEntityByTokenId(request.landTokenId.toLowerCase())
+    const user: User = await this.userService.findUserByTokenId(request.requestUserTokenId.toLowerCase())
     if (!land || !user) {
       throw new DataNotFoundException
     }
