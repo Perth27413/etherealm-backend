@@ -23,8 +23,7 @@ export class LandService {
     @InjectRepository(Land) private landRepo: Repository<Land>,
     @InjectRepository(LandMarket) private landMarketRepo: Repository<LandMarket>,
     private landStatusService: LandStatusService,
-    private landSizeService: LandSizeService,
-    private contractService: ContractService
+    private landSizeService: LandSizeService
   ) {}
 
   public async findAll(): Promise<Array<LandResponseModel>> {
@@ -75,7 +74,10 @@ export class LandService {
   }
 
   public async updateLand(landRequest: LandRequestModel): Promise<LandResponseModel> {
-    let land: Land = await this.mapLandRequestModelToLandEntity(landRequest)
+    if (landRequest.minimumOfferPrice < 0.00001) {
+      throw new ValidateException('Minimum Offer Price is invalid.')
+    }
+    let land: Land = await this.mapLandRequestModelToLandEntity(landRequest, landRequest.minimumOfferPrice)
     land = await this.landRepo.save(land)
     let result: LandResponseModel = await this.mapLandToLandResponseModel(land)
     return result
@@ -185,12 +187,13 @@ export class LandService {
       landAssets: land.landAssets,
       landSize: land.landSize,
       onRecommend: land.onRecommend,
-      price: landOnMarket ? landOnMarket.price : null
+      price: landOnMarket ? landOnMarket.price : null,
+      minimumOfferPrice: land.minimumOfferPrice
     }
     return result
   }
 
-  private async mapLandRequestModelToLandEntity(landRequest: LandRequestModel): Promise<Land> {
+  private async mapLandRequestModelToLandEntity(landRequest: LandRequestModel, minimumOfferPrice?: number): Promise<Land> {
     let status: LandStatus = await this.landStatusService.findStatusById(landRequest.landStatus)
     let size: LandSize = await this.landSizeService.findSizeById(landRequest.landSize)
     const currentLand: Date = new Date()
@@ -205,7 +208,7 @@ export class LandService {
       landAssets: landRequest.landAssets,
       landSize: size,
       onRecommend: landRequest.onRecommend,
-      minimumOfferPrice: 0.00001,
+      minimumOfferPrice: minimumOfferPrice ? minimumOfferPrice : 0.00001,
       createdAt: currentLand,
       updatedAt: currentLand
     }

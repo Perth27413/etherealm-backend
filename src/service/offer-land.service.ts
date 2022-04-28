@@ -82,7 +82,7 @@ export class OfferLandService {
   }
 
   public async cancelOffer(request: CancelOfferLandRequestModel): Promise<OfferLand> {
-    let exists: OfferLand = await this.offerLandRepo.findOne({where: {landTokenId: request.landTokenId.toLowerCase(), fromUserTokenId: request.requestUserTokenId.toLowerCase(), isDelete: false}})
+    let exists: OfferLand = await this.offerLandRepo.findOne({where: {landTokenId: request.landTokenId.toLowerCase(), fromUserTokenId: request.requestUserTokenId.toLowerCase(), isDelete: false}, relations: ['fromUserTokenId', 'landTokenId']})
     if (exists) {
       exists.isDelete = true
       const result: OfferLand = await this.offerLandRepo.save(exists)
