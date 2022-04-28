@@ -31,4 +31,6 @@ export class OfferLand {
   @Column({name: 'is_delete'})
   isDelete: boolean
 
+  @Column({name: 'fees'})
+  fees: number
 }

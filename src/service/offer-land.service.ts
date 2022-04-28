@@ -1,17 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Land } from 'src/entities/land.entity';
 import { OfferLand } from 'src/entities/offer-land.entity';
+import { User } from 'src/entities/user.entity';
 import DataNotFoundException from 'src/Exception/DataNotFoundException';
 import { ValidateException } from 'src/Exception/ValidateException';
+import CreateOfferLandRequestModel from 'src/model/offer/CreateOfferLandRequestModel';
 import OfferLandPageRequestModel from 'src/model/offer/OfferLandPageRequestModel';
 import OfferLandPageResponseModel from 'src/model/offer/OfferLandPageResponseModel';
 import { Repository } from 'typeorm';
+import { ContractService } from './contract.service';
+import { LandService } from './land.service';
+import { UserService } from './user.service';
 
 @Injectable()
 export class OfferLandService {
 
   constructor(
-    @InjectRepository(OfferLand) private offerLandRepo: Repository<OfferLand>
+    @InjectRepository(OfferLand) private offerLandRepo: Repository<OfferLand>,
+    private landService: LandService,
+    private userService: UserService,
+    private contractService: ContractService
   ) {}
 
   public async findAll(): Promise<Array<OfferLand>> {
@@ -49,6 +58,38 @@ export class OfferLandService {
       pageItem: pageItem,
       totalPage: Math.ceil(total / pageItem),
       data: offers
+    }
+    return result
+  }
+
+  public async createOffer(request: CreateOfferLandRequestModel): Promise<OfferLand> {
+    // check point on smart contract
+    await this.contractService.getPointsFromUserTokenId(request.requestUserTokenId)
+    if (request.offerPrice < 0.00001) {
+      throw new ValidateException('Offer Price is invalid')
+    }
+    const data: OfferLand = await this.createOfferRequestToOfferLand(request)
+    const result: OfferLand = await this.offerLandRepo.save(data)
+    return result
+  }
+
+  private async createOfferRequestToOfferLand(request: CreateOfferLandRequestModel): Promise<OfferLand> {
+    const land: Land = await this.landService.findLandEntityByTokenId(request.landTokenId)
+    const user: User = await this.userService.findUserByTokenId(request.requestUserTokenId)
+    if (!land || !user) {
+      throw new DataNotFoundException
+    }
+    const currentDate: Date = new Date()
+    const result: OfferLand = {
+      offerId: null,
+      fromUserTokenId: user,
+      landTokenId: land,
+      offerPrice: request.offerPrice,
+      fees: (request.offerPrice * 2.5) / 100,
+      isEnoughPoint: true,
+      isDelete: false,
+      createAt: currentDate,
+      updatedAt: currentDate
     }
     return result
   }

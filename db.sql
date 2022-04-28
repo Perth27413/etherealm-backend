@@ -175,3 +175,5 @@ CREATE TABLE public.offer_land (
 	CONSTRAINT offer_land_fk_1 FOREIGN KEY (from_user_token_id) REFERENCES public."user"(user_token_id),
 	CONSTRAINT offer_land_fk FOREIGN KEY (land_token_id) REFERENCES public.land(land_token_id)
 );
+
+ALTER TABLE public.offer_land ADD fees float4 NOT NULL;
