@@ -21,7 +21,7 @@ export default class OfferLandController {
     return offerLand
   }
 
-  @Get('/user/land')
+  @Post('/user/land')
   public async findIsOfferLandByTokenId(@Body() request: IsOfferLandRequestModel): Promise<OfferLand> {
     let offerLand: OfferLand = await this.offerLandService.getIsOfferLandByUserTokenId(request)
     return offerLand
