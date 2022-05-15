@@ -6,13 +6,15 @@ import { ContractService } from 'src/service/contract.service';
 import { LandService } from 'src/service/land.service';
 import { OfferLandService } from 'src/service/offer-land.service';
 import { LandModule } from './land.module';
+import { NotificationsModule } from './notifications.module';
 import { UserModule } from './user.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([OfferLand]),
     UserModule,
-    LandModule
+    LandModule,
+    NotificationsModule
   ],
   controllers: [OfferLandController],
   providers: [OfferLandService, ContractService],

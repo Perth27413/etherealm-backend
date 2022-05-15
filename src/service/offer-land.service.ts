@@ -5,6 +5,7 @@ import { OfferLand } from 'src/entities/offer-land.entity';
 import { User } from 'src/entities/user.entity';
 import DataNotFoundException from 'src/Exception/DataNotFoundException';
 import { ValidateException } from 'src/Exception/ValidateException';
+import NotificationsRequestModel from 'src/model/notifications/NotificationsRequestModel';
 import CancelOfferLandRequestModel from 'src/model/offer/CancelOfferLandRequestModel';
 import ConfirmOfferLandRequestModel from 'src/model/offer/ConfirmOfferLandRequestModel';
 import CreateOfferLandRequestModel from 'src/model/offer/CreateOfferLandRequestModel';
@@ -15,6 +16,7 @@ import OfferLandPageResponseModel from 'src/model/offer/OfferLandPageResponseMod
 import { Repository } from 'typeorm';
 import { ContractService } from './contract.service';
 import { LandService } from './land.service';
+import { NotificationsService } from './notifications.service';
 import { UserService } from './user.service';
 
 @Injectable()
@@ -24,7 +26,8 @@ export class OfferLandService {
     @InjectRepository(OfferLand) private offerLandRepo: Repository<OfferLand>,
     private landService: LandService,
     private userService: UserService,
-    private contractService: ContractService
+    private contractService: ContractService,
+    private notificationService: NotificationsService
   ) {}
 
   public async findAll(): Promise<Array<OfferLand>> {
@@ -122,6 +125,8 @@ export class OfferLandService {
     }
     const data: OfferLand = await this.createOfferRequestToOfferLand(request)
     const result: OfferLand = await this.offerLandRepo.save(data)
+    const notiData: NotificationsRequestModel = await this.mapOfferLandRequestToNotificationRequest(request)
+    await this.notificationService.addNotification(notiData)
     return result
   }
 
@@ -188,6 +193,19 @@ export class OfferLandService {
       updatedAt: currentDate
     }
     return result
+  }
+
+  private async mapOfferLandRequestToNotificationRequest(request: CreateOfferLandRequestModel): Promise<NotificationsRequestModel> {
+    const landDetails = await await this.landService.findLandEntityByTokenId(request.landTokenId)
+    const notificationRequest: NotificationsRequestModel = {
+      activityId: 1,
+      dateTime: new Date(),
+      fromUserTokenId: request.requestUserTokenId,
+      ownerTokenId: landDetails.landOwnerTokenId,
+      landTokenId: request.landTokenId,
+      price: request.offerPrice
+    }
+    return notificationRequest
   }
 
 }
