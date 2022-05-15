@@ -15,6 +15,8 @@ import LandResponseModel from 'src/model/lands/LandResponseModel';
 import CoordinatesModel from 'src/model/lands/CoordinatesModel';
 import { LandMarket } from 'src/entities/land-market.entity';
 import { ContractService } from './contract.service';
+import { OfferLandService } from './offer-land.service';
+import { OfferLand } from 'src/entities/offer-land.entity';
 
 @Injectable()
 export class LandService {
@@ -22,6 +24,7 @@ export class LandService {
   constructor(
     @InjectRepository(Land) private landRepo: Repository<Land>,
     @InjectRepository(LandMarket) private landMarketRepo: Repository<LandMarket>,
+    @InjectRepository(OfferLand) private offerLandRepo: Repository<OfferLand>,
     private landStatusService: LandStatusService,
     private landSizeService: LandSizeService
   ) {}
@@ -188,7 +191,8 @@ export class LandService {
       landSize: land.landSize,
       onRecommend: land.onRecommend,
       price: landOnMarket ? landOnMarket.price : null,
-      minimumOfferPrice: land.minimumOfferPrice
+      minimumOfferPrice: land.minimumOfferPrice,
+      bestOffer: await this.offerLandRepo.findOne({where: {landTokenId: land.landTokenId, isDelete: false}, order: {offerPrice: 'DESC', createAt: 'ASC'}, relations: ['fromUserTokenId']})
     }
     return result
   }

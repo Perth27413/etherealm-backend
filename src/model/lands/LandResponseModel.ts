@@ -1,5 +1,6 @@
 import { LandSize } from "src/entities/land-size.entity"
 import { LandStatus } from "src/entities/land-status.entity"
+import { OfferLand } from "src/entities/offer-land.entity"
 import CoordinatesModel from "./CoordinatesModel"
 
 export default class LandResponseModel {
@@ -15,4 +16,5 @@ export default class LandResponseModel {
   public landSize: LandSize = new LandSize
   public price: number | null = null
   public minimumOfferPrice: number = Number()
+  public bestOffer: OfferLand = new OfferLand
 }

@@ -7,6 +7,7 @@ import DataNotFoundException from 'src/Exception/DataNotFoundException';
 import { ValidateException } from 'src/Exception/ValidateException';
 import CancelOfferLandRequestModel from 'src/model/offer/CancelOfferLandRequestModel';
 import CreateOfferLandRequestModel from 'src/model/offer/CreateOfferLandRequestModel';
+import IsOfferLandRequestModel from 'src/model/offer/IsOfferLandRequestModel';
 import OfferingLandPageRequestModel from 'src/model/offer/OfferingLandPageRequestModel';
 import OfferLandPageRequestModel from 'src/model/offer/OfferLandPageRequestModel';
 import OfferLandPageResponseModel from 'src/model/offer/OfferLandPageResponseModel';
@@ -27,6 +28,16 @@ export class OfferLandService {
 
   public async findAll(): Promise<Array<OfferLand>> {
     let result: Array<OfferLand> = await this.offerLandRepo.find()
+    return result
+  }
+
+  public async findBestOffer(landTokenId): Promise<OfferLand> {
+    let allOffers: OfferLand = await this.offerLandRepo.findOne({where: {landTokenId: landTokenId, isDelete: false}, order: {createAt: 'ASC', offerPrice: 'DESC'}, relations: ['fromUserTokenId']})
+    return allOffers
+  }
+
+  public async getIsOfferLandByUserTokenId(request: IsOfferLandRequestModel): Promise<OfferLand> {
+    const result: OfferLand = await this.offerLandRepo.findOne({where: {landTokenId: request.landTokenId, fromUserTokenId: request.requestUserTokenId, isDelete: false}, relations: ['fromUserTokenId']})
     return result
   }
 

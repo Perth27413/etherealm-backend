@@ -7,6 +7,7 @@ import OfferLandPageResponseModel from 'src/model/offer/OfferLandPageResponseMod
 import CreateOfferLandRequestModel from 'src/model/offer/CreateOfferLandRequestModel';
 import CancelOfferLandRequestModel from 'src/model/offer/CancelOfferLandRequestModel';
 import OfferingLandPageRequestModel from 'src/model/offer/OfferingLandPageRequestModel';
+import IsOfferLandRequestModel from 'src/model/offer/IsOfferLandRequestModel';
 
 @Controller('api/offers')
 export default class OfferLandController {
@@ -15,6 +16,12 @@ export default class OfferLandController {
   @Get()
   public async findAll(): Promise<Array<OfferLand>> {
     let offerLand: Array<OfferLand> = await this.offerLandService.findAll()
+    return offerLand
+  }
+
+  @Get('/user/land')
+  public async findIsOfferLandByTokenId(@Body() request: IsOfferLandRequestModel): Promise<OfferLand> {
+    let offerLand: OfferLand = await this.offerLandService.getIsOfferLandByUserTokenId(request)
     return offerLand
   }
 

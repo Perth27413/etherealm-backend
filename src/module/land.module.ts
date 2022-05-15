@@ -9,12 +9,15 @@ import { LandSizeModule } from './land-size.module';
 import { LandMarketModule } from './land-market.module';
 import { LandMarket } from 'src/entities/land-market.entity';
 import { ContractService } from 'src/service/contract.service';
+import { OfferLandService } from 'src/service/offer-land.service';
+import { OfferLandModule } from './offer-land.module';
+import { OfferLand } from 'src/entities/offer-land.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Land, LandStatus, LandMarket]),
+    TypeOrmModule.forFeature([Land, LandStatus, LandMarket, OfferLand]),
     LandStatusModule,
-    LandSizeModule,
+    LandSizeModule
   ],
   controllers: [LandController],
   providers: [LandService, ContractService],
