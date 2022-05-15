@@ -22,6 +22,7 @@ import { LandService } from './land.service';
 import { LogTransactionsService } from './log-transactions.service';
 import { MarketTypeService } from './market-type.service';
 import { NotificationsService } from './notifications.service';
+import { OfferLandService } from './offer-land.service';
 import { UserService } from './user.service';
 
 @Injectable()
@@ -34,7 +35,8 @@ export class LandMarketService {
     private marketTypeService: MarketTypeService,
     private contractService: ContractService,
     private notificationService: NotificationsService,
-    private logTransactionService: LogTransactionsService
+    private logTransactionService: LogTransactionsService,
+    private offerlandService: OfferLandService
   ) {}
 
   public async findAll(): Promise<Array<LandMarket>> {
@@ -60,6 +62,7 @@ export class LandMarketService {
     await this.landService.updateLandStatus(request.landTokenId, statusId)
     const data: LandMarket = await this.mapLandMarketRequestModelToLandMarket(request)
     let result: LandMarket = await this.landMarketRepo.save(data)
+    await this.offerlandService.clearOfferWhenAddLanddOnMarket(request.landTokenId)
     return result
   }
 

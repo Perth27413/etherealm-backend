@@ -8,6 +8,7 @@ import { LandModule } from './land.module';
 import { LogTransactionsModule } from './log-transactions.module';
 import { MarketTypeModule } from './market-type.module';
 import { NotificationsModule } from './notifications.module';
+import { OfferLandModule } from './offer-land.module';
 import { UserModule } from './user.module';
 
 @Module({
@@ -17,7 +18,8 @@ import { UserModule } from './user.module';
     MarketTypeModule,
     NotificationsModule,
     LandModule,
-    LogTransactionsModule
+    LogTransactionsModule,
+    OfferLandModule
   ],
   controllers: [LandMarketController],
   providers: [LandMarketService, ContractService],
