@@ -177,3 +177,12 @@ CREATE TABLE public.offer_land (
 );
 
 ALTER TABLE public.offer_land ADD fees float4 NOT NULL;
+
+
+
+INSERT INTO public.log_type (log_type_id,log_type_name)
+	VALUES (2,'Offer');
+INSERT INTO public.log_type (log_type_id,log_type_name)
+	VALUES (3,'Deposit');
+INSERT INTO public.log_type (log_type_id,log_type_name)
+	VALUES (4,'Withdraw');

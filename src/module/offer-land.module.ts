@@ -6,6 +6,7 @@ import { ContractService } from 'src/service/contract.service';
 import { LandService } from 'src/service/land.service';
 import { OfferLandService } from 'src/service/offer-land.service';
 import { LandModule } from './land.module';
+import { LogTransactionsModule } from './log-transactions.module';
 import { NotificationsModule } from './notifications.module';
 import { UserModule } from './user.module';
 
@@ -14,7 +15,8 @@ import { UserModule } from './user.module';
     TypeOrmModule.forFeature([OfferLand]),
     UserModule,
     LandModule,
-    NotificationsModule
+    NotificationsModule,
+    LogTransactionsModule
   ],
   controllers: [OfferLandController],
   providers: [OfferLandService, ContractService],

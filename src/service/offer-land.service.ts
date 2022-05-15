@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ethers } from 'ethers';
 import { Land } from 'src/entities/land.entity';
 import { OfferLand } from 'src/entities/offer-land.entity';
 import { User } from 'src/entities/user.entity';
@@ -13,9 +14,11 @@ import IsOfferLandRequestModel from 'src/model/offer/IsOfferLandRequestModel';
 import OfferingLandPageRequestModel from 'src/model/offer/OfferingLandPageRequestModel';
 import OfferLandPageRequestModel from 'src/model/offer/OfferLandPageRequestModel';
 import OfferLandPageResponseModel from 'src/model/offer/OfferLandPageResponseModel';
+import TransactionsRequestModel from 'src/model/transactions/TransactionsRequestModel';
 import { Repository } from 'typeorm';
 import { ContractService } from './contract.service';
 import { LandService } from './land.service';
+import { LogTransactionsService } from './log-transactions.service';
 import { NotificationsService } from './notifications.service';
 import { UserService } from './user.service';
 
@@ -27,7 +30,8 @@ export class OfferLandService {
     private landService: LandService,
     private userService: UserService,
     private contractService: ContractService,
-    private notificationService: NotificationsService
+    private notificationService: NotificationsService,
+    private logTransactionService: LogTransactionsService
   ) {}
 
   public async findAll(): Promise<Array<OfferLand>> {
@@ -70,6 +74,8 @@ export class OfferLandService {
       })
       await this.landService.transferLand(ownerUserTokenId, request.offerOwnerTokenId, request.landTokenId)
       await this.offerLandRepo.save(offers)
+      const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel(receipt, ownerUserTokenId, 2)
+      await this.logTransactionService.addTransaction(transactionRequestModel)
       return 'Confirm Offer Successfully.'
     } else {
       throw new ValidateException('Transaction Failed.')
@@ -206,6 +212,17 @@ export class OfferLandService {
       price: request.offerPrice
     }
     return notificationRequest
+  }
+
+  private mapReceiptToTransactionRequestModel(receipt: ethers.providers.TransactionReceipt, ownerTokenId: string, type: number): TransactionsRequestModel {
+    const result: TransactionsRequestModel = {
+      fromUserTokenId: receipt.from,
+      toUserTokenId: ownerTokenId,
+      logType: type,
+      transactionBlock: receipt.transactionHash,
+      gasPrice: Number(ethers.utils.formatEther(receipt.gasUsed.mul(receipt.effectiveGasPrice)))
+    }
+    return result
   }
 
 }
