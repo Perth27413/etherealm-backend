@@ -11,7 +11,7 @@ export class ContractService {
 
   public signer: any = null
   public contract: any = null
-  private contractAddress = '0x59c874F99a95Aeb5cB37abBD26dDaCCa77A94B24'
+  private contractAddress = '0xE74174C5adE273332E0150a19fc7AC38600D87B7'
   private provider = new ethers.providers.AlchemyProvider("rinkeby")
 
   public async getContract(): Promise<void> {
@@ -39,4 +39,5 @@ export class ContractService {
     const points = await this.contract.pointOf(userTokenId)
     return Number(ethers.utils.formatEther(points))
   }
+
 }

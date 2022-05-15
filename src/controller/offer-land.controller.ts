@@ -8,6 +8,8 @@ import CreateOfferLandRequestModel from 'src/model/offer/CreateOfferLandRequestM
 import CancelOfferLandRequestModel from 'src/model/offer/CancelOfferLandRequestModel';
 import OfferingLandPageRequestModel from 'src/model/offer/OfferingLandPageRequestModel';
 import IsOfferLandRequestModel from 'src/model/offer/IsOfferLandRequestModel';
+import { Headers } from '@nestjs/common';
+import ConfirmOfferLandRequestModel from 'src/model/offer/ConfirmOfferLandRequestModel';
 
 @Controller('api/offers')
 export default class OfferLandController {
@@ -23,6 +25,13 @@ export default class OfferLandController {
   public async findIsOfferLandByTokenId(@Body() request: IsOfferLandRequestModel): Promise<OfferLand> {
     let offerLand: OfferLand = await this.offerLandService.getIsOfferLandByUserTokenId(request)
     return offerLand
+  }
+
+  @Post('/confirm')
+  public async confirmOfferLand(@Body() request: ConfirmOfferLandRequestModel, @Headers() headers): Promise<string> {
+    const owner: string = headers['authorization']
+    let result: string = await this.offerLandService.confirmLand(request, owner)
+    return result
   }
 
   @Patch('/page')

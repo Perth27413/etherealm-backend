@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Land } from 'src/entities/land.entity';
 import { OfferLand } from 'src/entities/offer-land.entity';
@@ -6,6 +6,7 @@ import { User } from 'src/entities/user.entity';
 import DataNotFoundException from 'src/Exception/DataNotFoundException';
 import { ValidateException } from 'src/Exception/ValidateException';
 import CancelOfferLandRequestModel from 'src/model/offer/CancelOfferLandRequestModel';
+import ConfirmOfferLandRequestModel from 'src/model/offer/ConfirmOfferLandRequestModel';
 import CreateOfferLandRequestModel from 'src/model/offer/CreateOfferLandRequestModel';
 import IsOfferLandRequestModel from 'src/model/offer/IsOfferLandRequestModel';
 import OfferingLandPageRequestModel from 'src/model/offer/OfferingLandPageRequestModel';
@@ -39,6 +40,26 @@ export class OfferLandService {
   public async getIsOfferLandByUserTokenId(request: IsOfferLandRequestModel): Promise<OfferLand> {
     const result: OfferLand = await this.offerLandRepo.findOne({where: {landTokenId: request.landTokenId, fromUserTokenId: request.requestUserTokenId, isDelete: false}, relations: ['fromUserTokenId']})
     return result
+  }
+
+  public async confirmLand(request: ConfirmOfferLandRequestModel, ownerUserTokenId: string): Promise<string> {
+    const receipt = await this.contractService.getTransaction(request.hash)
+    if (receipt.status) {
+      let offers: Array<OfferLand> = await this.offerLandRepo.find({where: {landTokenId: request.landTokenId, isDelete: false}})
+      if (!offers.length) {
+        throw new NotFoundException
+      }
+      offers.forEach((item: OfferLand) => {
+        item.isDelete = true
+        item.updatedAt = new Date()
+      })
+      await this.landService.transferLand(ownerUserTokenId, request.offerOwnerTokenId, request.landTokenId)
+      await this.offerLandRepo.save(offers)
+      return 'Confirm Offer Successfully.'
+    } else {
+      throw new ValidateException('Transaction Failed.')
+    }
+    
   }
 
   public async findOfferLandByLandTokenId(request: OfferLandPageRequestModel): Promise<OfferLandPageResponseModel> {
