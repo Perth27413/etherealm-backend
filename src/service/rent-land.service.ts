@@ -110,10 +110,8 @@ export class RentLandService {
       let currentDate: Date = new Date()
       if (period > 14) {
         currentDate.setMonth(currentDate.getMonth() + 1)
-      } else {
-        currentDate.setDate(currentDate.getDate() + period)
+        return currentDate
       }
-      return currentDate
     }
     return null
   }
