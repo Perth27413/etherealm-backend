@@ -42,6 +42,12 @@ export class LogTransactionsService {
     return result
   }
 
+  public async addTransactionReturnEntity(transactionsRequest: TransactionsRequestModel): Promise<LogTransactions> {
+    let data: LogTransactions = await this.mapTransactionRequestToEntity(transactionsRequest)
+    let transaction: LogTransactions = await this.logDescriptionRepo.save(data)
+    return transaction
+  }
+
   private mapTransactionsToResponse(transactions: Array<LogTransactions>): Array<TransactionsResponseModel> {
     let results: Array<TransactionsResponseModel> = []
     transactions.forEach((transaction: LogTransactions) => {

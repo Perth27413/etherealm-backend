@@ -280,3 +280,15 @@ CREATE TABLE public.hire_purchase_payment (
 
 ALTER TABLE public.land_market ADD rent_type serial NOT NULL;
 ALTER TABLE public.land_market ADD CONSTRAINT land_market_fk_3 FOREIGN KEY (rent_type) REFERENCES public.rent_type(rent_type_id);
+
+
+INSERT INTO public.notification_activity (activity_id,activity_name)
+	VALUES (3,'Rent');
+
+
+ALTER TABLE public.rent_land ADD renter_token_id varchar NOT NULL;
+ALTER TABLE public.rent_land ADD CONSTRAINT rent_land_fk_3 FOREIGN KEY (renter_token_id) REFERENCES public."user"(user_token_id);
+
+
+ALTER TABLE public.rent_payment ADD renter_token_id varchar NOT NULL;
+ALTER TABLE public.rent_payment ADD CONSTRAINT rent_payment_fk_2 FOREIGN KEY (renter_token_id) REFERENCES public."user"(user_token_id);

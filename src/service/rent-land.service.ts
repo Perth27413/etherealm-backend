@@ -1,13 +1,40 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ethers, Transaction } from 'ethers';
+import { Land } from 'src/entities/land.entity';
+import { LogTransactions } from 'src/entities/log-transactions.entity';
+import { Notifications } from 'src/entities/notifications.entity';
 import { RentLand } from 'src/entities/rent-land.entity';
+import { ValidateException } from 'src/Exception/ValidateException';
+import NotificationsRequestModel from 'src/model/notifications/NotificationsRequestModel';
+import AddRentLandRequestModel from 'src/model/rent/AddRentLandRequestModel';
+import AddRentPaymentRequestModel from 'src/model/rent/AddRentPaymentRequestModel';
+import RentLandDetailsResponseModel from 'src/model/rent/RentLandDetailsResponseModel';
+import TransactionsRequestModel from 'src/model/transactions/TransactionsRequestModel';
+import TransactionsResponseModel from 'src/model/transactions/TransactionsResponseModel';
 import { Repository } from 'typeorm';
+import { ContractService } from './contract.service';
+import { LandService } from './land.service';
+import { LogTransactionsService } from './log-transactions.service';
+import { NotificationsService } from './notifications.service';
+import { PeriodTypeService } from './period-type.service';
+import { RentPaymentService } from './rent-payment.service';
+import { RentTypeService } from './rent-type.service';
+import { UserService } from './user.service';
 
 @Injectable()
 export class RentLandService {
 
   constructor(
-    @InjectRepository(RentLand) private rentLandRepo: Repository<RentLand>
+    @InjectRepository(RentLand) private rentLandRepo: Repository<RentLand>,
+    private landService: LandService,
+    private rentTypeService: RentTypeService,
+    private periodTypeService: PeriodTypeService,
+    private logTransactionService: LogTransactionsService,
+    private contractService: ContractService,
+    private notificationService: NotificationsService,
+    private rentPaymentService: RentPaymentService,
+    private userService: UserService
   ) {}
 
   public async findAll(): Promise<Array<RentLand>> {
@@ -15,4 +42,105 @@ export class RentLandService {
     return result
   }
 
+  public async getRentDetails(landTokenId: string): Promise<RentLandDetailsResponseModel> {
+    let rentLand: RentLand = await this.rentLandRepo.findOne({where: {landTokenId: landTokenId, isDelete: false}})
+    const result: RentLandDetailsResponseModel = await this.mapRentLandToRentLandDetailsResponse(rentLand)
+    return result
+  }
+
+  public async addRentLand(request: AddRentLandRequestModel, userTokenId: string): Promise<RentLand> {
+    const receipt = await this.contractService.getTransaction(request.hash)
+    if (receipt.status) {
+      const land: Land = await this.landService.findLandEntityByTokenId(request.landTokenId)
+      const saveData: RentLand = await this.mapAddRentLandRequestToRentLandEntity(request, userTokenId)
+      const result: RentLand = await this.rentLandRepo.save(saveData)
+      const notificationRequest: NotificationsRequestModel = this.mapAddRentLandRequestModelToNotificationRequest(request, userTokenId, land.landOwnerTokenId)
+      await this.notificationService.addNotification(notificationRequest)
+      const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel(receipt, land.landOwnerTokenId, 5)
+      const transactionResult: LogTransactions = await this.logTransactionService.addTransactionReturnEntity(transactionRequestModel)
+      const paymentData: AddRentPaymentRequestModel = {rentId: result.rentId, logTransactionId: transactionResult.logTransactionsId, price: result.price, renterTokenId: userTokenId}
+      await this.rentPaymentService.addPaymentFromRentLand(paymentData, result, transactionResult)
+      await this.landService.updateLandStatus(request.landTokenId, 5)
+      return result
+    }
+    throw new ValidateException('Transaction Failed.')
+  }
+
+  private async mapRentLandToRentLandDetailsResponse(rentLand: RentLand): Promise<RentLandDetailsResponseModel> {
+    const result: RentLandDetailsResponseModel = {
+      ...rentLand,
+       nextPayment: this.calculateNextPayment(rentLand.endDate, rentLand.period), 
+       payMentHistories: await this.rentPaymentService.findPaymentByLandAndOwnerTokenId(rentLand.rentId, rentLand.renterTokenId.userTokenId)
+      }
+    return result
+  }
+
+  private checkIsLastPayment(endDate: Date): boolean {
+    const currentDate: Date = new Date()
+    if (currentDate <= endDate) {
+      return false
+    }
+    return true
+  }
+
+  private calculateNextPayment(endDate: Date, period: number): Date {
+    if (!this.checkIsLastPayment(endDate)) {
+      if (period > 14) {
+        endDate.setMonth(endDate.getMonth() + 1)
+        return endDate
+      } else {
+        endDate.setDate(endDate.getDate() + period)
+        return endDate
+      }
+    }
+    return null
+  }
+
+  private mapAddRentLandRequestModelToNotificationRequest(request: AddRentLandRequestModel, userTokenId: string, landOwnerTokenId: string): NotificationsRequestModel {
+    const notificationRequest: NotificationsRequestModel = {
+      activityId: 3,
+      dateTime: new Date(),
+      fromUserTokenId: userTokenId,
+      ownerTokenId: landOwnerTokenId,
+      landTokenId: request.landTokenId,
+      price: request.price
+    }
+    return notificationRequest
+  }
+
+  private mapReceiptToTransactionRequestModel(receipt: ethers.providers.TransactionReceipt, ownerTokenId: string, type: number): TransactionsRequestModel {
+    const result: TransactionsRequestModel = {
+      fromUserTokenId: receipt.from,
+      toUserTokenId: ownerTokenId,
+      logType: type,
+      transactionBlock: receipt.transactionHash,
+      gasPrice: Number(ethers.utils.formatEther(receipt.gasUsed.mul(receipt.effectiveGasPrice)))
+    }
+    return result
+  }
+
+  private async mapAddRentLandRequestToRentLandEntity(request: AddRentLandRequestModel, renterTokenId: string): Promise<RentLand> {
+    const currentDate: Date = new Date()
+    const result: RentLand = {
+      rentId: null,
+      landTokenId: await this.landService.findLandEntityByTokenId(request.landTokenId),
+      rentType: await this.rentTypeService.findByTypeId(request.rentType),
+      periodType: await this.periodTypeService.findByPeriodTypeId(request.periodType),
+      period: request.period,
+      price: request.price,
+      fees: this.calculateFees(request.price),
+      createAt: currentDate,
+      updatedAt: currentDate,
+      startDate: currentDate,
+      endDate: currentDate,
+      lastPayment: currentDate,
+      isDelete: false,
+      renterTokenId: await this.userService.findUserByTokenId(renterTokenId)
+    }
+    return result
+  }
+
+  private calculateFees(price: number): number {
+    return price * (2.5 / 100)
+  }
 }

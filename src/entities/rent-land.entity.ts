@@ -49,4 +49,8 @@ export class RentLand {
   @Column({name: 'is_delete'})
   isDelete: boolean
 
+  @ManyToOne(() => User, user => user.userTokenId)
+  @JoinColumn({name: 'renter_token_id'})
+  renterTokenId: User
+
 }

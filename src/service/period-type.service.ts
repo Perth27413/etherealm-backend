@@ -15,4 +15,9 @@ export class PeriodTypeService {
     return result
   }
 
+  public async findByPeriodTypeId(periodTypeId: number): Promise<PeriodType> {
+    let result: PeriodType = await this.periodTypeRepo.findOne({where: {periodTypeId: periodTypeId}})
+    return result
+  }
+
 }
