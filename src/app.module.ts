@@ -14,6 +14,12 @@ import { LandMarketModule } from './module/land-market.module';
 import { NotificationsModule } from './module/notifications.module';
 import { LogTransactionsModule } from './module/log-transactions.module';
 import { OfferLandModule } from './module/offer-land.module';
+import { RentLandModule } from './module/rent-land.module';
+import { RentPaymentModule } from './module/rent-payment.module';
+import { RentTypeModule } from './module/rent-type.module';
+import { PeriodTypeModule } from './module/period-type.module';
+import { HirePurchaseModule } from './module/hire-purchase.module';
+import { HirePurchasePaymentModule } from './module/hire-purchase-payment.module';
 
 
 @Module({
@@ -40,7 +46,13 @@ import { OfferLandModule } from './module/offer-land.module';
     LandMarketModule,
     NotificationsModule,
     LogTransactionsModule,
-    OfferLandModule
+    OfferLandModule,
+    RentLandModule,
+    RentPaymentModule,
+    RentTypeModule,
+    PeriodTypeModule,
+    HirePurchaseModule,
+    HirePurchasePaymentModule
   ],
   controllers: [AppController],
   providers: [AppService],
