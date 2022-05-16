@@ -292,3 +292,7 @@ ALTER TABLE public.rent_land ADD CONSTRAINT rent_land_fk_3 FOREIGN KEY (renter_t
 
 ALTER TABLE public.rent_payment ADD renter_token_id varchar NOT NULL;
 ALTER TABLE public.rent_payment ADD CONSTRAINT rent_payment_fk_2 FOREIGN KEY (renter_token_id) REFERENCES public."user"(user_token_id);
+
+
+INSERT INTO public.log_type (log_type_id,log_type_name)
+	VALUES (5,'Payout');

@@ -15,12 +15,12 @@ import RentLandDetailsResponseModel from 'src/model/rent/RentLandDetailsResponse
 import AddRentLandRequestModel from 'src/model/rent/AddRentLandRequestModel';
 import { RentLand } from 'src/entities/rent-land.entity';
 
-@Controller('api/land/rent')
+@Controller('api/lands/rent')
 export default class RentLandController {
   constructor(private readonly rentLandService: RentLandService) {}
 
   @Get('/details/:landTokenId')
-  public async getRentLandDetails(@Query('landTokenId') landTokenId: string): Promise<RentLandDetailsResponseModel> {
+  public async getRentLandDetails(@Param('landTokenId') landTokenId: string): Promise<RentLandDetailsResponseModel> {
     let results: RentLandDetailsResponseModel = await this.rentLandService.getRentDetails(landTokenId)
     return results
   }

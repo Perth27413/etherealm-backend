@@ -43,24 +43,31 @@ export class RentLandService {
   }
 
   public async getRentDetails(landTokenId: string): Promise<RentLandDetailsResponseModel> {
-    let rentLand: RentLand = await this.rentLandRepo.findOne({where: {landTokenId: landTokenId, isDelete: false}})
-    const result: RentLandDetailsResponseModel = await this.mapRentLandToRentLandDetailsResponse(rentLand)
-    return result
+    let rentLand: RentLand = await this.rentLandRepo.findOne({where: {landTokenId: landTokenId, isDelete: false}, relations: ['landTokenId', 'rentType', 'periodType', 'renterTokenId']})
+    if (rentLand) {
+      const result: RentLandDetailsResponseModel = await this.mapRentLandToRentLandDetailsResponse(rentLand)
+      return result
+    }
+    return new RentLandDetailsResponseModel
   }
 
   public async addRentLand(request: AddRentLandRequestModel, userTokenId: string): Promise<RentLand> {
+    const isExists: Array<RentLand> = await this.rentLandRepo.find({where: {isDelete: false, landTokenId: request.landTokenId}})
+    if (isExists.length) {
+      throw new ValidateException('This Land is already rented.')
+    }
     const receipt = await this.contractService.getTransaction(request.hash)
     if (receipt.status) {
       const land: Land = await this.landService.findLandEntityByTokenId(request.landTokenId)
       const saveData: RentLand = await this.mapAddRentLandRequestToRentLandEntity(request, userTokenId)
       const result: RentLand = await this.rentLandRepo.save(saveData)
+      await this.landService.updateLandStatus(request.landTokenId, 5)
       const notificationRequest: NotificationsRequestModel = this.mapAddRentLandRequestModelToNotificationRequest(request, userTokenId, land.landOwnerTokenId)
       await this.notificationService.addNotification(notificationRequest)
       const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel(receipt, land.landOwnerTokenId, 5)
       const transactionResult: LogTransactions = await this.logTransactionService.addTransactionReturnEntity(transactionRequestModel)
       const paymentData: AddRentPaymentRequestModel = {rentId: result.rentId, logTransactionId: transactionResult.logTransactionsId, price: result.price, renterTokenId: userTokenId}
       await this.rentPaymentService.addPaymentFromRentLand(paymentData, result, transactionResult)
-      await this.landService.updateLandStatus(request.landTokenId, 5)
       return result
     }
     throw new ValidateException('Transaction Failed.')
@@ -70,7 +77,7 @@ export class RentLandService {
     const result: RentLandDetailsResponseModel = {
       ...rentLand,
        nextPayment: this.calculateNextPayment(rentLand.endDate, rentLand.period), 
-       payMentHistories: await this.rentPaymentService.findPaymentByLandAndOwnerTokenId(rentLand.rentId, rentLand.renterTokenId.userTokenId)
+       paymentHistories: await this.rentPaymentService.findPaymentByLandAndOwnerTokenId(rentLand.rentId, rentLand.renterTokenId.userTokenId)
       }
     return result
   }
@@ -85,13 +92,13 @@ export class RentLandService {
 
   private calculateNextPayment(endDate: Date, period: number): Date {
     if (!this.checkIsLastPayment(endDate)) {
+      let currentDate: Date = new Date()
       if (period > 14) {
-        endDate.setMonth(endDate.getMonth() + 1)
-        return endDate
+        currentDate.setMonth(currentDate.getMonth() + 1)
       } else {
-        endDate.setDate(endDate.getDate() + period)
-        return endDate
+        currentDate.setDate(currentDate.getDate() + period)
       }
+      return currentDate
     }
     return null
   }
@@ -132,12 +139,23 @@ export class RentLandService {
       createAt: currentDate,
       updatedAt: currentDate,
       startDate: currentDate,
-      endDate: currentDate,
+      endDate: this.calculateEndDate(currentDate, request.period),
       lastPayment: currentDate,
       isDelete: false,
       renterTokenId: await this.userService.findUserByTokenId(renterTokenId)
     }
     return result
+  }
+
+  private calculateEndDate(date: Date, period: number) {
+    let newDate = new Date(date)
+    if (period > 14) {
+      const monthLength: number = period / 30
+      newDate.setMonth(date.getMonth() + monthLength)
+    } else {
+      newDate.setDate(date.getDate() + period)
+    }
+    return newDate
   }
 
   private calculateFees(price: number): number {
