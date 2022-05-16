@@ -2,6 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { LandMarket } from 'src/entities/land-market.entity';
 import LandResponseModel from 'src/model/lands/LandResponseModel';
 import BuyLandOnMarketRequestModel from 'src/model/market/BuyLandOnMarketRequestModel';
+import LandMarketPageRequestModel from 'src/model/market/LandMarketPageRequestModel';
+import LandMarketPageResponseModel from 'src/model/market/LandMarketPageResponseModel';
 import LandMarketRequestModel from 'src/model/market/LandMarketRequestModel';
 import RemoveLandOnMarketRequest from 'src/model/market/RemoveLandOnMarketRequest';
 import UpdateLandPriceOnMarketRequestModel from 'src/model/market/UpdateLandPriceOnMarketRequestModel';
@@ -14,6 +16,12 @@ export class LandMarketController {
   @Get('/land')
   public async getAll(): Promise<Array<LandMarket>> {
     let lands: Array<LandMarket> = await this.landMarketService.findAll()
+    return lands
+  }
+
+  @Patch('/land')
+  public async getByMarketTypeId(@Body() request: LandMarketPageRequestModel): Promise<LandMarketPageResponseModel> {
+    let lands: LandMarketPageResponseModel = await this.landMarketService.findByMarketTypeId(request)
     return lands
   }
 

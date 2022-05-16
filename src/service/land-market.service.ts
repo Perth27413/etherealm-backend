@@ -10,6 +10,8 @@ import DataNotFoundException from 'src/Exception/DataNotFoundException';
 import { ValidateException } from 'src/Exception/ValidateException';
 import LandResponseModel from 'src/model/lands/LandResponseModel';
 import BuyLandOnMarketRequestModel from 'src/model/market/BuyLandOnMarketRequestModel';
+import LandMarketPageRequestModel from 'src/model/market/LandMarketPageRequestModel';
+import LandMarketPageResponseModel from 'src/model/market/LandMarketPageResponseModel';
 import LandMarketRequestModel from 'src/model/market/LandMarketRequestModel';
 import RemoveLandOnMarketRequest from 'src/model/market/RemoveLandOnMarketRequest';
 import UpdateLandPriceOnMarketRequestModel from 'src/model/market/UpdateLandPriceOnMarketRequestModel';
@@ -43,6 +45,29 @@ export class LandMarketService {
 
   public async findAll(): Promise<Array<LandMarket>> {
     let result: Array<LandMarket> = await this.landMarketRepo.find({where: {isDelete: false}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
+    return result
+  }
+
+  public async findByMarketTypeId(request: LandMarketPageRequestModel): Promise<LandMarketPageResponseModel> {
+    // let result: Array<LandMarket> = await this.landMarketRepo.find({where: {marketType: typeId, isDelete: false}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
+    // return result
+    const pageItem: number = 15
+    const [lands, total] = await this.landMarketRepo.findAndCount({
+      where: {marketType: request.marketType, isDelete: false},
+      order: {createdAt: 'DESC'},
+      relations: ['landTokenId', 'ownerUserTokenId', 'marketType'],
+      skip: (request.page * pageItem) - pageItem,
+      take: pageItem
+    })
+    if (!lands.length) {
+      return new LandMarketPageResponseModel
+    }
+    const result: LandMarketPageResponseModel = {
+      currentPage: request.page,
+      pageItem: pageItem,
+      totalPage: Math.ceil(total / pageItem),
+      data: lands
+    }
     return result
   }
 
