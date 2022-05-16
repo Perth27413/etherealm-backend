@@ -25,6 +25,13 @@ export default class RentLandController {
     return results
   }
 
+  @Get('/owned')
+  public async getRentLandByRenterTokenId(@Query('renterTokenId') renterTokenId: string): Promise<Array<RentLand>> {
+    console.log('ieie')
+    let results: Array<RentLand> = await this.rentLandService.findRentLandByRenterTokenId(renterTokenId)
+    return results
+  }
+
   @Post()
   public async addRentLand(@Body() request: AddRentLandRequestModel, @Headers() headers): Promise<RentLand> {
     const owner: string = headers['authorization']

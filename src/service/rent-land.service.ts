@@ -46,6 +46,11 @@ export class RentLandService {
     return result
   }
 
+  public async findRentLandByRenterTokenId(renterTokenId: string): Promise<Array<RentLand>> {
+    const result: Array<RentLand> = await this.rentLandRepo.find({where: {isDelete: false, renterTokenId: renterTokenId}, relations: ['landTokenId', 'rentType', 'periodType', 'renterTokenId']})
+    return result
+  }
+
   public async getRentDetails(landTokenId: string): Promise<RentLandDetailsResponseModel> {
     let rentLand: RentLand = await this.rentLandRepo.findOne({where: {landTokenId: landTokenId, isDelete: false}, relations: ['landTokenId', 'rentType', 'periodType', 'renterTokenId']})
     if (rentLand) {
@@ -86,9 +91,9 @@ export class RentLandService {
   private async mapRentLandToRentLandDetailsResponse(rentLand: RentLand): Promise<RentLandDetailsResponseModel> {
     const result: RentLandDetailsResponseModel = {
       ...rentLand,
-       nextPayment: this.calculateNextPayment(rentLand.endDate, rentLand.period), 
-       paymentHistories: await this.rentPaymentService.findPaymentByLandAndOwnerTokenId(rentLand.rentId, rentLand.renterTokenId.userTokenId)
-      }
+      nextPayment: this.calculateNextPayment(rentLand.endDate, rentLand.period), 
+      paymentHistories: await this.rentPaymentService.findPaymentByLandAndOwnerTokenId(rentLand.rentId, rentLand.renterTokenId.userTokenId)
+    }
     return result
   }
 
