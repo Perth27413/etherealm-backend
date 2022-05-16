@@ -23,6 +23,7 @@ import { LogTransactionsService } from './log-transactions.service';
 import { MarketTypeService } from './market-type.service';
 import { NotificationsService } from './notifications.service';
 import { OfferLandService } from './offer-land.service';
+import { RentTypeService } from './rent-type.service';
 import { UserService } from './user.service';
 
 @Injectable()
@@ -36,7 +37,8 @@ export class LandMarketService {
     private contractService: ContractService,
     private notificationService: NotificationsService,
     private logTransactionService: LogTransactionsService,
-    private offerlandService: OfferLandService
+    private offerlandService: OfferLandService,
+    private rentTypeService: RentTypeService
   ) {}
 
   public async findAll(): Promise<Array<LandMarket>> {
@@ -54,7 +56,7 @@ export class LandMarketService {
     if (exists) {
       throw new ValidateException('Land is already listed on market.')
     }
-    const land: Land = await this.landService.findLandEntityByTokenId(request.landTokenId)
+    const land: Land = await this.landService.findLandEntityByTokenId(request.landTokenId.toLowerCase())
     if (land.landOwnerTokenId !== request.ownerUserTokenId) {
       throw new ValidateException('Land owner is invalid.')
     }
@@ -146,7 +148,8 @@ export class LandMarketService {
       fees: this.calculateFees(request.price),
       createdAt: currentTime,
       updatedAt: currentTime,
-      isDelete: false
+      isDelete: false,
+      rentType: await this.rentTypeService.findByTypeId(request.rentType ? request.rentType : 1)
     }
     return result
   }

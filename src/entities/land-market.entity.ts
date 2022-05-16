@@ -2,6 +2,7 @@ import {Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedCo
 import { MarketType } from "./market-type.entity";
 import { Land } from "./land.entity";
 import { User } from "./user.entity";
+import { RentType } from "./rent-type.entity";
 
 @Entity({name: "land_market"})
 export class LandMarket {
@@ -38,4 +39,8 @@ export class LandMarket {
 
     @Column({name: 'is_delete'})
     isDelete: boolean
+
+    @ManyToOne(() => RentType, rentType => rentType.rentTypeId)
+    @JoinColumn({name: 'rent_type'})
+    rentType: RentType
 }

@@ -278,3 +278,5 @@ CREATE TABLE public.hire_purchase_payment (
 	CONSTRAINT hire_purchase_payment_fk_1 FOREIGN KEY (log_transactions_id) REFERENCES public.log_transactions(log_transactions_id)
 );
 
+ALTER TABLE public.land_market ADD rent_type serial NOT NULL;
+ALTER TABLE public.land_market ADD CONSTRAINT land_market_fk_3 FOREIGN KEY (rent_type) REFERENCES public.rent_type(rent_type_id);

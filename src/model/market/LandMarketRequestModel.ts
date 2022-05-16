@@ -5,4 +5,5 @@ export default class LandMarketRequestModel {
   public marketType: number = Number()
   public price: number = Number()
   public period: number = Number()
+  public rentType: number | null = Number()
 }

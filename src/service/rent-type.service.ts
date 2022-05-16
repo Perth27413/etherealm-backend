@@ -15,4 +15,9 @@ export class RentTypeService {
     return result
   }
 
+  public async findByTypeId(id: number): Promise<RentType> {
+    const result: RentType = await this.rentTypeRepo.findOne({where: {rentTypeId: id}})
+    return result
+  }
+
 }

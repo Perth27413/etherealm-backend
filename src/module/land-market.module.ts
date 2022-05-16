@@ -9,6 +9,7 @@ import { LogTransactionsModule } from './log-transactions.module';
 import { MarketTypeModule } from './market-type.module';
 import { NotificationsModule } from './notifications.module';
 import { OfferLandModule } from './offer-land.module';
+import { RentTypeModule } from './rent-type.module';
 import { UserModule } from './user.module';
 
 @Module({
@@ -19,7 +20,8 @@ import { UserModule } from './user.module';
     NotificationsModule,
     LandModule,
     LogTransactionsModule,
-    OfferLandModule
+    OfferLandModule,
+    RentTypeModule
   ],
   controllers: [LandMarketController],
   providers: [LandMarketService, ContractService],

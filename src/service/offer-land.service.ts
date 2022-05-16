@@ -39,15 +39,14 @@ export class OfferLandService {
     return result
   }
 
-  public async clearOfferWhenAddLanddOnMarket(landTokenId): Promise<boolean> {
+  public async clearOfferWhenAddLanddOnMarket(landTokenId: string): Promise<boolean> {
     let allOffers: Array<OfferLand> = await this.offerLandRepo.find({where: {landTokenId: landTokenId, isDelete: false}})
-    if (!allOffers.length) {
-      throw new DataNotFoundException
+    if (allOffers.length) {
+      allOffers.forEach((item: OfferLand) => {
+        item.isDelete = true
+      })
+      await this.offerLandRepo.save(allOffers)
     }
-    allOffers.forEach((item: OfferLand) => {
-      item.isDelete = true
-    })
-    await this.offerLandRepo.save(allOffers)
     return true
   }
 
