@@ -55,7 +55,7 @@ export class LandMarketService {
     const [lands, total] = await this.landMarketRepo.findAndCount({
       where: {marketType: request.marketType, isDelete: false},
       order: {createdAt: 'DESC'},
-      relations: ['landTokenId', 'ownerUserTokenId', 'marketType'],
+      relations: ['landTokenId', 'ownerUserTokenId', 'marketType', 'rentType'],
       skip: (request.page * pageItem) - pageItem,
       take: pageItem
     })
