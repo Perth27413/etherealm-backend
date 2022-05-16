@@ -127,7 +127,8 @@ export class LandMarketService {
         const notification: Notifications = await this.notificationService.addNotification(notificationRequest)
         const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel(receipt, landOnMarket.ownerUserTokenId.userTokenId, 1)
         const transaction: TransactionsResponseModel = await this.logTransactionService.addTransaction(transactionRequestModel)
-        await this.landMarketRepo.delete(landOnMarket)
+        landOnMarket.isDelete = true
+        await this.landMarketRepo.save(landOnMarket)
         return land
       } else {
         throw new ValidateException('Transaction failed.')

@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ethers, Transaction } from 'ethers';
+import { LandMarket } from 'src/entities/land-market.entity';
 import { Land } from 'src/entities/land.entity';
 import { LogTransactions } from 'src/entities/log-transactions.entity';
 import { Notifications } from 'src/entities/notifications.entity';
 import { RentLand } from 'src/entities/rent-land.entity';
 import { ValidateException } from 'src/Exception/ValidateException';
+import RemoveLandOnMarketRequest from 'src/model/market/RemoveLandOnMarketRequest';
 import NotificationsRequestModel from 'src/model/notifications/NotificationsRequestModel';
 import AddRentLandRequestModel from 'src/model/rent/AddRentLandRequestModel';
 import AddRentPaymentRequestModel from 'src/model/rent/AddRentPaymentRequestModel';
@@ -14,6 +16,7 @@ import TransactionsRequestModel from 'src/model/transactions/TransactionsRequest
 import TransactionsResponseModel from 'src/model/transactions/TransactionsResponseModel';
 import { Repository } from 'typeorm';
 import { ContractService } from './contract.service';
+import { LandMarketService } from './land-market.service';
 import { LandService } from './land.service';
 import { LogTransactionsService } from './log-transactions.service';
 import { NotificationsService } from './notifications.service';
@@ -34,7 +37,8 @@ export class RentLandService {
     private contractService: ContractService,
     private notificationService: NotificationsService,
     private rentPaymentService: RentPaymentService,
-    private userService: UserService
+    private userService: UserService,
+    private landMarketService: LandMarketService
   ) {}
 
   public async findAll(): Promise<Array<RentLand>> {
@@ -52,6 +56,10 @@ export class RentLandService {
   }
 
   public async addRentLand(request: AddRentLandRequestModel, userTokenId: string): Promise<RentLand> {
+    const isOnMarket: LandMarket = await this.landMarketService.findByLandTokenId(request.landTokenId)
+    if (!isOnMarket) {
+      throw new ValidateException('This Land is not list on market.')
+    }
     const isExists: Array<RentLand> = await this.rentLandRepo.find({where: {isDelete: false, landTokenId: request.landTokenId}})
     if (isExists.length) {
       throw new ValidateException('This Land is already rented.')
@@ -62,6 +70,8 @@ export class RentLandService {
       const saveData: RentLand = await this.mapAddRentLandRequestToRentLandEntity(request, userTokenId)
       const result: RentLand = await this.rentLandRepo.save(saveData)
       await this.landService.updateLandStatus(request.landTokenId, 5)
+      const deleteData: RemoveLandOnMarketRequest = {landTokenId: land.landTokenId, ownerTokenId: land.landOwnerTokenId}
+      await this.landMarketService.removeFromMarket(deleteData)
       const notificationRequest: NotificationsRequestModel = this.mapAddRentLandRequestModelToNotificationRequest(request, userTokenId, land.landOwnerTokenId)
       await this.notificationService.addNotification(notificationRequest)
       const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel(receipt, land.landOwnerTokenId, 5)

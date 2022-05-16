@@ -11,6 +11,7 @@ import { NotificationsModule } from './notifications.module';
 import { RentPaymentModule } from './rent-payment.module';
 import { UserModule } from './user.module';
 import RentLandController from 'src/controller/rent-land.controller';
+import { LandMarketModule } from './land-market.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import RentLandController from 'src/controller/rent-land.controller';
     LogTransactionsModule,
     NotificationsModule,
     RentPaymentModule,
-    UserModule
+    UserModule,
+    LandMarketModule
   ],
   controllers: [RentLandController],
   providers: [RentLandService, ContractService],
