@@ -75,8 +75,8 @@ export class RentLandService {
       const saveData: RentLand = await this.mapAddRentLandRequestToRentLandEntity(request, userTokenId)
       const result: RentLand = await this.rentLandRepo.save(saveData)
       const deleteData: RemoveLandOnMarketRequest = {landTokenId: land.landTokenId, ownerTokenId: land.landOwnerTokenId}
-      await this.landService.updateLandStatus(request.landTokenId, 5)
       await this.landMarketService.removeFromMarket(deleteData)
+      await this.landService.updateLandStatus(request.landTokenId, 5)
       const notificationRequest: NotificationsRequestModel = this.mapAddRentLandRequestModelToNotificationRequest(request, userTokenId, land.landOwnerTokenId)
       await this.notificationService.addNotification(notificationRequest)
       const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel(receipt, land.landOwnerTokenId, 5)
