@@ -296,3 +296,12 @@ ALTER TABLE public.rent_payment ADD CONSTRAINT rent_payment_fk_2 FOREIGN KEY (re
 
 INSERT INTO public.log_type (log_type_id,log_type_name)
 	VALUES (5,'Payout');
+
+
+
+
+ALTER TABLE public.hire_purchase ADD renter_token_id varchar NOT NULL;
+ALTER TABLE public.hire_purchase ADD CONSTRAINT hire_purchase_fk1 FOREIGN KEY (renter_token_id) REFERENCES public."user"(user_token_id);
+
+ALTER TABLE public.hire_purchase_payment ADD renter_token_id varchar NOT NULL;
+ALTER TABLE public.hire_purchase_payment ADD CONSTRAINT hire_purchase_payment_fk2 FOREIGN KEY (renter_token_id) REFERENCES public."user"(user_token_id);

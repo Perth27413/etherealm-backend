@@ -49,8 +49,6 @@ export class LandMarketService {
   }
 
   public async findByMarketTypeId(request: LandMarketPageRequestModel): Promise<LandMarketPageResponseModel> {
-    // let result: Array<LandMarket> = await this.landMarketRepo.find({where: {marketType: typeId, isDelete: false}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
-    // return result
     const pageItem: number = 15
     const [lands, total] = await this.landMarketRepo.findAndCount({
       where: {marketType: request.marketType, isDelete: false},

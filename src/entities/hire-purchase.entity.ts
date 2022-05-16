@@ -1,5 +1,6 @@
 import {Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn} from "typeorm";
 import { Land } from "./land.entity";
+import { User } from "./user.entity";
 
 @Entity({name: "hire_purchase"})
 export class HirePurchase {
@@ -10,6 +11,10 @@ export class HirePurchase {
   @ManyToOne(() => Land, land => land.landTokenId)
   @JoinColumn({name: 'land_token_id'})
   landTokenId: Land
+
+  @ManyToOne(() => User, user => user.userTokenId)
+  @JoinColumn({name: 'renter_token_id'})
+  renterTokenId: User
 
   @Column({name: 'period'})
   period: number
