@@ -178,11 +178,103 @@ CREATE TABLE public.offer_land (
 
 ALTER TABLE public.offer_land ADD fees float4 NOT NULL;
 
-
-
 INSERT INTO public.log_type (log_type_id,log_type_name)
 	VALUES (2,'Offer');
 INSERT INTO public.log_type (log_type_id,log_type_name)
 	VALUES (3,'Deposit');
 INSERT INTO public.log_type (log_type_id,log_type_name)
 	VALUES (4,'Withdraw');
+
+CREATE TABLE public.rent_type (
+	rent_type_id serial NOT NULL,
+	rent_type_text varchar NULL,
+	CONSTRAINT rent_type_pk PRIMARY KEY (rent_type_id)
+);
+
+INSERT INTO public.rent_type (rent_type_id,rent_type_text)
+	VALUES (1,'Day');
+INSERT INTO public.rent_type (rent_type_id,rent_type_text)
+	VALUES (2,'Month');
+
+DELETE FROM public.land_status
+	WHERE land_status_id=5;
+UPDATE public.land_status
+	SET land_status_id=5
+	WHERE land_status_id=6;
+UPDATE public.land_status
+	SET land_status_id=6
+	WHERE land_status_id=7;
+
+CREATE TABLE public.period_type (
+	period_type_id serial NOT NULL,
+	period_type_text varchar NOT NULL,
+	CONSTRAINT period_type_pk PRIMARY KEY (period_type_id)
+);
+
+INSERT INTO public.period_type (period_type_id,period_type_text)
+	VALUES (1,'Time limit');
+INSERT INTO public.period_type (period_type_id,period_type_text)
+	VALUES (2,'Without time limit');
+
+CREATE TABLE public.rent_land (
+	rent_id serial NOT NULL,
+	land_token_id varchar NOT NULL,
+	rent_type serial NOT NULL,
+	period_type serial NOT NULL,
+	"period" serial NOT NULL,
+	price float4 NOT NULL,
+	fees float4 NOT NULL,
+	created_at timestamp(0) NOT NULL,
+	updated_at timestamp(0) NOT NULL,
+	start_date timestamp(0) NOT NULL,
+	end_date timestamp(0) NOT NULL,
+	last_payment timestamp(0) NOT NULL,
+	is_delete bool NOT NULL,
+	CONSTRAINT rent_land_pk PRIMARY KEY (rent_id),
+	CONSTRAINT rent_land_fk FOREIGN KEY (land_token_id) REFERENCES public.land(land_token_id),
+	CONSTRAINT rent_land_fk_1 FOREIGN KEY (rent_type) REFERENCES public.rent_type(rent_type_id),
+	CONSTRAINT rent_land_fk_2 FOREIGN KEY (period_type) REFERENCES public.period_type(period_type_id)
+);
+
+CREATE TABLE public.rent_payment (
+	rent_payment_id serial NOT NULL,
+	rent_id serial NOT NULL,
+	log_transactions_id serial NOT NULL,
+	price float4 NOT NULL,
+	fees float4 NOT NULL,
+	created_at timestamp(0) NOT NULL,
+	updated_at timestamp(0) NOT NULL,
+	CONSTRAINT rent_payment_pk PRIMARY KEY (rent_payment_id),
+	CONSTRAINT rent_payment_fk FOREIGN KEY (rent_id) REFERENCES public.rent_land(rent_id),
+	CONSTRAINT rent_payment_fk_1 FOREIGN KEY (log_transactions_id) REFERENCES public.log_transactions(log_transactions_id)
+);
+
+CREATE TABLE public.hire_purchase (
+	hire_purchase_id serial NOT NULL,
+	land_token_id varchar NOT NULL,
+	"period" serial NOT NULL,
+	price float4 NOT NULL,
+	fees float4 NOT NULL,
+	created_at timestamp(0) NOT NULL,
+	updated_at timestamp(0) NOT NULL,
+	start_date timestamp(0) NOT NULL,
+	end_date timestamp(0) NOT NULL,
+	last_payment timestamp(0) NOT NULL,
+	is_delete bool NOT NULL,
+	CONSTRAINT hire_purchase_pk PRIMARY KEY (hire_purchase_id),
+	CONSTRAINT hire_purchase_fk FOREIGN KEY (land_token_id) REFERENCES public.land(land_token_id)
+);
+
+CREATE TABLE public.hire_purchase_payment (
+	hire_purchase_payment_id serial NOT NULL,
+	hire_purchase_id serial NOT NULL,
+	log_transactions_id serial NOT NULL,
+	price float4 NOT NULL,
+	fees float4 NOT NULL,
+	created_at timestamp(0) NOT NULL,
+	updated_at timestamp(0) NOT NULL,
+	CONSTRAINT hire_purchase_payment_pk PRIMARY KEY (hire_purchase_payment_id),
+	CONSTRAINT hire_purchase_payment_fk FOREIGN KEY (hire_purchase_id) REFERENCES public.hire_purchase(hire_purchase_id),
+	CONSTRAINT hire_purchase_payment_fk_1 FOREIGN KEY (log_transactions_id) REFERENCES public.log_transactions(log_transactions_id)
+);
+
