@@ -8,6 +8,7 @@ import { ValidateException } from 'src/Exception/ValidateException';
 import AddHirePurchasePaymentRequestModel from 'src/model/lands/hire-purchase/AddHirePurchasePaymentRequestModel';
 import AddHirePurchaseRequestModel from 'src/model/lands/hire-purchase/AddHirePurchaseRequestModel';
 import HirePurchaseResponseModel from 'src/model/lands/hire-purchase/HirePurchaseResponseModel';
+import OwnedHirePurchaseResponseModel from 'src/model/lands/hire-purchase/OwnedHirePurchaseResponseModel';
 import TransactionsRequestModel from 'src/model/transactions/TransactionsRequestModel';
 import { Repository } from 'typeorm';
 import { ContractService } from './contract.service';
@@ -31,6 +32,11 @@ export class HirePurchaseService {
   public async findAll(): Promise<Array<HirePurchase>> {
     let result: Array<HirePurchase> = await this.hirePurchaseRepo.find()
     return result
+  }
+
+  public async findHirePurchaseByRenterTokenId(renterTokenId: string): Promise<Array<OwnedHirePurchaseResponseModel>> {
+    const hirePurchase: Array<HirePurchase> = await this.hirePurchaseRepo.find({where: {renterTokenId: renterTokenId, isDelete: false}, relations: ['landTokenId', 'renterTokenId']})
+    return this.mapHirePurchaseToOwnedHirePurchaseResponse(hirePurchase)
   }
 
   public async getHirePurchaseDetails(landTokenId: string): Promise<HirePurchaseResponseModel> {
@@ -78,6 +84,18 @@ export class HirePurchaseService {
     } else {
       await this.landService.updateLandStatus(request.landTokenId, 1)
     }
+  }
+
+  private async mapHirePurchaseToOwnedHirePurchaseResponse(rentLands: Array<HirePurchase>): Promise<Array<OwnedHirePurchaseResponseModel>> {
+    const results: Array<OwnedHirePurchaseResponseModel> = []
+    for await (const item of rentLands) {
+      const data: OwnedHirePurchaseResponseModel = {
+        ...item,
+        landTokenId: await this.landService.mapLandToLandResponseModel(item.landTokenId)
+      }
+      results.push(data)
+    }
+    return results
   }
 
   private async mapHirePurchaseToHirePurchaseResponse(hirePurchase: HirePurchase): Promise<HirePurchaseResponseModel> {

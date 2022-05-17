@@ -4,6 +4,7 @@ import { HirePurchaseService } from 'src/service/hire-purchase.service';
 import AddHirePurchaseRequestModel from 'src/model/lands/hire-purchase/AddHirePurchaseRequestModel';
 import HirePurchaseResponseModel from 'src/model/lands/hire-purchase/HirePurchaseResponseModel';
 import { HirePurchase } from 'src/entities/hire-purchase.entity';
+import OwnedHirePurchaseResponseModel from 'src/model/lands/hire-purchase/OwnedHirePurchaseResponseModel';
 
 @Controller('api/lands/hire')
 export default class HirePurchaseLandController {
@@ -12,6 +13,12 @@ export default class HirePurchaseLandController {
   @Get('/details/:landTokenId')
   public async getRentLandDetails(@Param('landTokenId') landTokenId: string): Promise<HirePurchaseResponseModel> {
     let results: HirePurchaseResponseModel = await this.hirePurchaseService.getHirePurchaseDetails(landTokenId)
+    return results
+  }
+
+  @Get('/owned')
+  public async getHirePurchaseByRenterTokenId(@Query('renterTokenId') renterTokenId: string): Promise<Array<OwnedHirePurchaseResponseModel>> {
+    let results: Array<OwnedHirePurchaseResponseModel> = await this.hirePurchaseService.findHirePurchaseByRenterTokenId(renterTokenId)
     return results
   }
 

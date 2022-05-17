@@ -168,7 +168,7 @@ export class LandService {
     return null
   }
 
-  private async mapLandsToLandResponseModel(lands: Array<Land>): Promise<Array<LandResponseModel>> {
+  public async mapLandsToLandResponseModel(lands: Array<Land>): Promise<Array<LandResponseModel>> {
     let result: Array<LandResponseModel> = []
     for await (const land of lands) {
       let data: LandResponseModel = await this.mapLandToLandResponseModel(land)
@@ -177,7 +177,7 @@ export class LandService {
     return result
   }
 
-  private async mapLandToLandResponseModel(land: Land): Promise<LandResponseModel> {
+  public async mapLandToLandResponseModel(land: Land): Promise<LandResponseModel> {
     const landOnMarket: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: land.landTokenId}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
     let location: CoordinatesModel = {
       x: land.landLocation.split(',').map(item => Number(item))[0],
