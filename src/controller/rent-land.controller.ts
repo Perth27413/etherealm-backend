@@ -26,7 +26,7 @@ export default class RentLandController {
     return results
   }
 
-  @Get('/owned')
+  @Get('/owned/people')
   public async getPeopleAreRentingByLandOwnerTokenId(@Query('landOwnerTokenId') landOwnerTokenId: string): Promise<Array<OwnedRentLandResponseModel>> {
     let results: Array<OwnedRentLandResponseModel> = await this.rentLandService.getPeopleAreRentingByLandOwnerTokenId(landOwnerTokenId)
     return results
