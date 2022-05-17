@@ -51,6 +51,17 @@ export class RentLandService {
     return result
   }
 
+  public async getPeopleAreRentingByLandOwnerTokenId(landOwnerTokenId: string): Promise<Array<OwnedRentLandResponseModel>> {
+    const result: Array<RentLand> = await this.rentLandRepo.find({where: {isDelete: false}, relations: ['landTokenId', 'rentType', 'periodType', 'renterTokenId']})
+    const validResult: Array<RentLand> = []
+    for (const item of result) {
+      if (item.landTokenId.landOwnerTokenId === landOwnerTokenId) {
+        validResult.push(item)
+      }
+    }
+    return this.mapRentLandToOwnedRentLandResponse(validResult)
+  }
+
   public async findRentLandByRenterTokenId(renterTokenId: string): Promise<Array<OwnedRentLandResponseModel>> {
     const result: Array<RentLand> = await this.rentLandRepo.find({where: {isDelete: false, renterTokenId: renterTokenId}, relations: ['landTokenId', 'rentType', 'periodType', 'renterTokenId']})
     return this.mapRentLandToOwnedRentLandResponse(result)
