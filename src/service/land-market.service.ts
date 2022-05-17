@@ -70,7 +70,7 @@ export class LandMarketService {
   }
 
   public async findByLandTokenId(landTokenId: string): Promise<LandMarket> {
-    let result: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: landTokenId, isDelete: false}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
+    let result: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: landTokenId, isDelete: false}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType', 'rentType']})
     return result
   }
 
@@ -92,7 +92,7 @@ export class LandMarketService {
   }
 
   public async updateLandPriceOnMarket(request: UpdateLandPriceOnMarketRequestModel): Promise<LandMarket> {
-    const exists: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landTokenId, ownerUserTokenId: request.ownerTokenId, isDelete: false}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType']})
+    const exists: LandMarket = await this.landMarketRepo.findOne({where: {landTokenId: request.landTokenId, ownerUserTokenId: request.ownerTokenId, isDelete: false}, relations: ['landTokenId', 'ownerUserTokenId', 'marketType', 'rentType']})
     if (exists) {
       exists.price = request.price
       const result: LandMarket = await this.landMarketRepo.save(exists)
