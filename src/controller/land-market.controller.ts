@@ -19,6 +19,12 @@ export class LandMarketController {
     return lands
   }
 
+  @Get('/land/:landTokenId')
+  public async getByLandTokenId(@Param('landTokenId') landTokenId: string): Promise<LandMarket> {
+    let lands: LandMarket = await this.landMarketService.findByLandTokenId(landTokenId)
+    return lands
+  }
+
   @Patch('/land')
   public async getByMarketTypeId(@Body() request: LandMarketPageRequestModel): Promise<LandMarketPageResponseModel> {
     let lands: LandMarketPageResponseModel = await this.landMarketService.findByMarketTypeId(request)
