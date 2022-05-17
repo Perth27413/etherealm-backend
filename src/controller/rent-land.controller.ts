@@ -14,6 +14,7 @@ import { RentLandService } from 'src/service/rent-land.service';
 import RentLandDetailsResponseModel from 'src/model/rent/RentLandDetailsResponseModel';
 import AddRentLandRequestModel from 'src/model/rent/AddRentLandRequestModel';
 import { RentLand } from 'src/entities/rent-land.entity';
+import OwnedRentLandResponseModel from 'src/model/rent/OwnedRentLandResponseModel';
 
 @Controller('api/lands/rent')
 export default class RentLandController {
@@ -26,8 +27,8 @@ export default class RentLandController {
   }
 
   @Get('/owned')
-  public async getRentLandByRenterTokenId(@Query('renterTokenId') renterTokenId: string): Promise<Array<RentLand>> {
-    let results: Array<RentLand> = await this.rentLandService.findRentLandByRenterTokenId(renterTokenId)
+  public async getRentLandByRenterTokenId(@Query('renterTokenId') renterTokenId: string): Promise<Array<OwnedRentLandResponseModel>> {
+    let results: Array<OwnedRentLandResponseModel> = await this.rentLandService.findRentLandByRenterTokenId(renterTokenId)
     return results
   }
 

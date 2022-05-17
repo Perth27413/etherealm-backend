@@ -7,10 +7,13 @@ import { LogTransactions } from 'src/entities/log-transactions.entity';
 import { Notifications } from 'src/entities/notifications.entity';
 import { RentLand } from 'src/entities/rent-land.entity';
 import { ValidateException } from 'src/Exception/ValidateException';
+import CoordinatesModel from 'src/model/lands/CoordinatesModel';
+import LandResponseModel from 'src/model/lands/LandResponseModel';
 import RemoveLandOnMarketRequest from 'src/model/market/RemoveLandOnMarketRequest';
 import NotificationsRequestModel from 'src/model/notifications/NotificationsRequestModel';
 import AddRentLandRequestModel from 'src/model/rent/AddRentLandRequestModel';
 import AddRentPaymentRequestModel from 'src/model/rent/AddRentPaymentRequestModel';
+import OwnedRentLandResponseModel from 'src/model/rent/OwnedRentLandResponseModel';
 import RentLandDetailsResponseModel from 'src/model/rent/RentLandDetailsResponseModel';
 import TransactionsRequestModel from 'src/model/transactions/TransactionsRequestModel';
 import TransactionsResponseModel from 'src/model/transactions/TransactionsResponseModel';
@@ -20,6 +23,7 @@ import { LandMarketService } from './land-market.service';
 import { LandService } from './land.service';
 import { LogTransactionsService } from './log-transactions.service';
 import { NotificationsService } from './notifications.service';
+import { OfferLandService } from './offer-land.service';
 import { PeriodTypeService } from './period-type.service';
 import { RentPaymentService } from './rent-payment.service';
 import { RentTypeService } from './rent-type.service';
@@ -38,7 +42,8 @@ export class RentLandService {
     private notificationService: NotificationsService,
     private rentPaymentService: RentPaymentService,
     private userService: UserService,
-    private landMarketService: LandMarketService
+    private landMarketService: LandMarketService,
+    private offerLandService: OfferLandService
   ) {}
 
   public async findAll(): Promise<Array<RentLand>> {
@@ -46,9 +51,9 @@ export class RentLandService {
     return result
   }
 
-  public async findRentLandByRenterTokenId(renterTokenId: string): Promise<Array<RentLand>> {
+  public async findRentLandByRenterTokenId(renterTokenId: string): Promise<Array<OwnedRentLandResponseModel>> {
     const result: Array<RentLand> = await this.rentLandRepo.find({where: {isDelete: false, renterTokenId: renterTokenId}, relations: ['landTokenId', 'rentType', 'periodType', 'renterTokenId']})
-    return result
+    return this.mapRentLandToOwnedRentLandResponse(result)
   }
 
   public async getRentDetails(landTokenId: string): Promise<RentLandDetailsResponseModel> {
@@ -88,12 +93,26 @@ export class RentLandService {
     throw new ValidateException('Transaction Failed.')
   }
 
+  private async mapRentLandToOwnedRentLandResponse(rentLands: Array<RentLand>): Promise<Array<OwnedRentLandResponseModel>> {
+    const results: Array<OwnedRentLandResponseModel> = []
+    for await (const item of rentLands) {
+      const data: OwnedRentLandResponseModel = {
+        ...item,
+        landTokenId: await this.mapLandToLandResponseModel(item.landTokenId)
+      }
+      results.push(data)
+    }
+    return results
+  }
+
   private async mapRentLandToRentLandDetailsResponse(rentLand: RentLand): Promise<RentLandDetailsResponseModel> {
     const result: RentLandDetailsResponseModel = {
       ...rentLand,
+      landTokenId: await this.mapLandToLandResponseModel(rentLand.landTokenId),
       nextPayment: this.calculateNextPayment(rentLand.endDate, rentLand.period), 
       paymentHistories: await this.rentPaymentService.findPaymentByLandAndOwnerTokenId(rentLand.rentId, rentLand.renterTokenId.userTokenId)
     }
+    console.log(result.landTokenId)
     return result
   }
 
@@ -173,5 +192,42 @@ export class RentLandService {
 
   private calculateFees(price: number): number {
     return price * (2.5 / 100)
+  }
+
+  private async mapLandsToLandResponseModel(lands: Array<Land>): Promise<Array<LandResponseModel>> {
+    let result: Array<LandResponseModel> = []
+    for await (const land of lands) {
+      let data: LandResponseModel = await this.mapLandToLandResponseModel(land)
+      result.push(data)
+    }
+    return result
+  }
+
+  private async mapLandToLandResponseModel(land: Land): Promise<LandResponseModel> {
+    const landOnMarket: LandMarket = await this.landMarketService.findByLandTokenId(land.landTokenId)
+    let location: CoordinatesModel = {
+      x: land.landLocation.split(',').map(item => Number(item))[0],
+      y: land.landLocation.split(',').map(item => Number(item))[1]
+    }
+    let position: CoordinatesModel = {
+      x: land.landPosition.split(',').map(item => Number(item))[0],
+      y: land.landPosition.split(',').map(item => Number(item))[1]
+    }
+    let result: LandResponseModel = {
+      landTokenId: land.landTokenId,
+      landName: land.landName,
+      landDescription: land.landDescription,
+      landOwnerTokenId: land.landOwnerTokenId,
+      landLocation: location,
+      landPosition: position,
+      landStatus: land.landStatus,
+      landAssets: land.landAssets,
+      landSize: land.landSize,
+      onRecommend: land.onRecommend,
+      price: landOnMarket ? landOnMarket.price : null,
+      minimumOfferPrice: land.minimumOfferPrice,
+      bestOffer: await this.offerLandService.findBestOffer(land.landTokenId)
+    }
+    return result
   }
 }

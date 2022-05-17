@@ -1,12 +1,9 @@
-import { Land } from "src/entities/land.entity";
 import { PeriodType } from "src/entities/period-type.entity";
-import { RentLand } from "src/entities/rent-land.entity";
-import { RentPayment } from "src/entities/rent-payment.entity";
 import { RentType } from "src/entities/rent-type.entity";
 import { User } from "src/entities/user.entity";
 import LandResponseModel from "../lands/LandResponseModel";
 
-export default class RentLandDetailsResponseModel {
+export default class OwnedRentLandResponseModel {
   public rentId: number = Number()
   public landTokenId: LandResponseModel = new LandResponseModel()
   public rentType: RentType = new RentType()
@@ -21,6 +18,4 @@ export default class RentLandDetailsResponseModel {
   public lastPayment: Date = new Date()
   public isDelete: boolean = Boolean()
   public renterTokenId: User = new User()
-  public nextPayment: Date | null = null
-  public paymentHistories: Array<RentPayment> = new Array<RentPayment>()
 }

@@ -12,6 +12,7 @@ import { RentPaymentModule } from './rent-payment.module';
 import { UserModule } from './user.module';
 import RentLandController from 'src/controller/rent-land.controller';
 import { LandMarketModule } from './land-market.module';
+import { OfferLandModule } from './offer-land.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { LandMarketModule } from './land-market.module';
     NotificationsModule,
     RentPaymentModule,
     UserModule,
-    LandMarketModule
+    LandMarketModule,
+    OfferLandModule
   ],
   controllers: [RentLandController],
   providers: [RentLandService, ContractService],
