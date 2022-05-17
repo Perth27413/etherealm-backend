@@ -305,3 +305,6 @@ ALTER TABLE public.hire_purchase ADD CONSTRAINT hire_purchase_fk1 FOREIGN KEY (r
 
 ALTER TABLE public.hire_purchase_payment ADD renter_token_id varchar NOT NULL;
 ALTER TABLE public.hire_purchase_payment ADD CONSTRAINT hire_purchase_payment_fk2 FOREIGN KEY (renter_token_id) REFERENCES public."user"(user_token_id);
+
+INSERT INTO public.land_status (land_status_id,land_status_name)
+	VALUES (0,'Waiting transaction');

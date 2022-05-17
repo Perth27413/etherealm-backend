@@ -12,7 +12,7 @@ export class HirePurchasePayment {
 
   @ManyToOne(() => HirePurchase, hirePurchase => hirePurchase.hirePurchaseId)
   @JoinColumn({name: 'hire_purchase_id'})
-  hirePurchaseId: RentLand
+  hirePurchaseId: HirePurchase
 
   @ManyToOne(() => LogTransactions, logTransactions => logTransactions.logTransactionsId)
   @JoinColumn({name: 'log_transactions_id'})

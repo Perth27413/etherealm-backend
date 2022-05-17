@@ -74,6 +74,9 @@ export class RentLandService {
     if (isExists.length) {
       throw new ValidateException('This Land is already rented.')
     }
+    if (request.rentType === 2 && request.period <= 14) {
+      throw new ValidateException('Period is invalid.')
+    }
     const receipt = await this.contractService.getTransaction(request.hash)
     if (receipt.status) {
       const land: Land = await this.landService.findLandEntityByTokenId(request.landTokenId)

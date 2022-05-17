@@ -8,7 +8,6 @@ import { LogTransactionsModule } from './log-transactions.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([HirePurchasePayment]),
-    HirePurchaseModule,
     LogTransactionsModule
   ],
   controllers: [],

@@ -35,6 +35,14 @@ export class LandService {
     return results
   }
 
+  public async findLandEntityByLandTokenIdAndLandStatus(landTokenId: string, statusId: number): Promise<Land> {
+    const result: Land = await this.landRepo.findOne({where: {landTokenId: landTokenId}, relations: ["landStatus", "landSize"]})
+    if (!result || result.landStatus.landStatusId !== statusId) {
+      throw new DataNotFoundException
+    }
+    return result
+  }
+
   public async findLandByTokenId(tokenId: string): Promise<LandResponseModel> {
     let land: Land = await this.landRepo.findOne(tokenId, {relations: ["landStatus", "landSize"]})
     if (!land) {
