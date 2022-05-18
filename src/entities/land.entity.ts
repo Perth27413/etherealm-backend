@@ -45,4 +45,7 @@ export class Land {
 
     @Column({name: 'updated_at'})
     updatedAt: Date
+
+    @Column({name: 'price'})
+    price: number
 }

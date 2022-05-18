@@ -308,3 +308,5 @@ ALTER TABLE public.hire_purchase_payment ADD CONSTRAINT hire_purchase_payment_fk
 
 INSERT INTO public.land_status (land_status_id,land_status_name)
 	VALUES (0,'Waiting transaction');
+
+ALTER TABLE public.land ADD price float4 NULL;

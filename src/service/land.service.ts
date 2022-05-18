@@ -70,25 +70,27 @@ export class LandService {
   }
 
   public async insertLand(landRequest: LandRequestModel): Promise<Land> {
-    let data: Land = await this.mapLandRequestModelToLandEntity(landRequest)
-    try {
-      let existsLand: Land = await this.checkLandIsExists(landRequest.landTokenId)
-      if (existsLand) {
-        return existsLand
-      }
-      let landResult: Land = await this.landRepo.save(data)
-      return landResult
-    } catch (error) {
-      console.error(error)
-      throw new ValidateException('Body is invalid')
-    }
+    // let data: Land = await this.mapLandRequestModelToLandEntity(landRequest)
+    // try {
+    //   let existsLand: Land = await this.checkLandIsExists(landRequest.landTokenId)
+    //   if (existsLand) {
+    //     return existsLand
+    //   }
+    //   let landResult: Land = await this.landRepo.save(data)
+    //   return landResult
+    // } catch (error) {
+    //   console.error(error)
+    //   throw new ValidateException('Body is invalid')
+    // }
+    return new Land
   }
 
   public async updateLand(landRequest: LandRequestModel): Promise<LandResponseModel> {
     if (landRequest.minimumOfferPrice < 0.00001) {
       throw new ValidateException('Minimum Offer Price is invalid.')
     }
-    let land: Land = await this.mapLandRequestModelToLandEntity(landRequest, landRequest.minimumOfferPrice)
+    const isExistsLand: Land = await this.findLandEntityByTokenId(landRequest.landTokenId)
+    let land: Land = await this.mapLandRequestModelToLandEntity(landRequest, landRequest.minimumOfferPrice, isExistsLand.price)
     land = await this.landRepo.save(land)
     let result: LandResponseModel = await this.mapLandToLandResponseModel(land)
     return result
@@ -148,7 +150,8 @@ export class LandService {
             onRecommend: false,
             minimumOfferPrice: 0.00001,
             createdAt: currentTime,
-            updatedAt: currentTime
+            updatedAt: currentTime,
+            price: 1
           }
           await this.landRepo.save(data)
         }
@@ -205,7 +208,7 @@ export class LandService {
     return result
   }
 
-  private async mapLandRequestModelToLandEntity(landRequest: LandRequestModel, minimumOfferPrice?: number): Promise<Land> {
+  private async mapLandRequestModelToLandEntity(landRequest: LandRequestModel, landPrice: number, minimumOfferPrice?: number): Promise<Land> {
     let status: LandStatus = await this.landStatusService.findStatusById(landRequest.landStatus)
     let size: LandSize = await this.landSizeService.findSizeById(landRequest.landSize)
     const currentLand: Date = new Date()
@@ -222,7 +225,8 @@ export class LandService {
       onRecommend: landRequest.onRecommend,
       minimumOfferPrice: minimumOfferPrice ? minimumOfferPrice : 0.00001,
       createdAt: currentLand,
-      updatedAt: currentLand
+      updatedAt: currentLand,
+      price: landPrice
     }
     return result
   }
