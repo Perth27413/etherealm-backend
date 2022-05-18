@@ -18,7 +18,7 @@ export class UserService {
         return existsUser
       }
       let data: User = {
-        userTokenId: userTokenId,
+        userTokenId: userTokenId.toLowerCase(),
         userName: '',
         userDescription: '',
         userProfilePic: ''
