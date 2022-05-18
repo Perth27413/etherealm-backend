@@ -60,13 +60,13 @@ export class HirePurchaseService {
     await this.landService.updateLandStatus(request.landTokenId, 0)
     const receipt = await this.contractService.getTransaction(request.hash)
     if (receipt.status) {
-      //map request to entitiy
-      const saveData: HirePurchase = await this.mapAddHirePurchaseRequestToEntity(request, renterTokenId)
-      const hirePurchaseResponse = await this.hirePurchaseRepo.save(saveData)
-
       //change land status
       await this.landService.updateLandStatus(request.landTokenId, 6)
 
+      //map request to entitiy
+      const saveData: HirePurchase = await this.mapAddHirePurchaseRequestToEntity(request, renterTokenId)
+      const hirePurchaseResponse = await this.hirePurchaseRepo.save(saveData)
+      
       //add transaction
       const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel(receipt, renterTokenId, 5)
       const transactionResult: LogTransactions = await this.logTransactionService.addTransactionReturnEntity(transactionRequestModel)
