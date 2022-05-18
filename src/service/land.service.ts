@@ -201,7 +201,7 @@ export class LandService {
       landAssets: land.landAssets,
       landSize: land.landSize,
       onRecommend: land.onRecommend,
-      price: landOnMarket ? landOnMarket.price : null,
+      price: landOnMarket ? landOnMarket.price : land.price,
       minimumOfferPrice: land.minimumOfferPrice,
       bestOffer: await this.offerLandRepo.findOne({where: {landTokenId: land.landTokenId, isDelete: false}, order: {offerPrice: 'DESC', createAt: 'ASC'}, relations: ['fromUserTokenId']})
     }
