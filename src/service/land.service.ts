@@ -26,7 +26,8 @@ export class LandService {
     @InjectRepository(LandMarket) private landMarketRepo: Repository<LandMarket>,
     @InjectRepository(OfferLand) private offerLandRepo: Repository<OfferLand>,
     private landStatusService: LandStatusService,
-    private landSizeService: LandSizeService
+    private landSizeService: LandSizeService,
+    private contractService: ContractService
   ) {}
 
   public async findAll(): Promise<Array<LandResponseModel>> {
@@ -98,12 +99,16 @@ export class LandService {
 
   public async purchaseLand(purchaseLandRequest: PurchaseLandRequestModel): Promise<LandResponseModel> {
     try {
-      let land: Land = await this.landRepo.findOne({where: {landTokenId: purchaseLandRequest.landTokenId}, relations: ["landStatus", "landSize"]})
-      land.landOwnerTokenId = purchaseLandRequest.ownerTokenId
-      land.landStatus = await this.landStatusService.findStatusById(2)
-      land = await this.landRepo.save(land)
-      let result: LandResponseModel = await this.mapLandToLandResponseModel(land)
-      return result
+      const receipt = await this.contractService.getTransaction(purchaseLandRequest.hash)
+      if (receipt.status) {
+        let land: Land = await this.landRepo.findOne({where: {landTokenId: purchaseLandRequest.landTokenId}, relations: ["landStatus", "landSize"]})
+        land.landOwnerTokenId = purchaseLandRequest.ownerTokenId
+        land.landStatus = await this.landStatusService.findStatusById(2)
+        land = await this.landRepo.save(land)
+        let result: LandResponseModel = await this.mapLandToLandResponseModel(land)
+        return result
+      }
+      throw new ValidateException('Transaction Failed.')
     } catch (error) {
       console.error(error)
       throw new ValidateException('Error when purchase land')
