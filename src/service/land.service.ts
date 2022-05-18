@@ -151,7 +151,7 @@ export class LandService {
             minimumOfferPrice: 0.00001,
             createdAt: currentTime,
             updatedAt: currentTime,
-            price: 1
+            price: 0.01
           }
           await this.landRepo.save(data)
         }
