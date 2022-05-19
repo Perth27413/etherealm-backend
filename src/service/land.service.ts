@@ -147,11 +147,10 @@ export class LandService {
     try {
       let allLands: Array<Land> = await this.landRepo.find({relations: ["landStatus", "landSize"]})
       if (!allLands.length) {
-      // if (allLands.length) {
         for (let index = 0; index < lands.length; index++) {
           const currentTime: Date = new Date()
           let data: Land = {
-            landTokenId: lands[index].tokenId,
+            landTokenId: ethers.BigNumber.from(ethers.utils.randomBytes(32)).toHexString(),
             landName: `Land(${lands[index].location.x}, ${lands[index].location.y})`,
             landDescription: 'No Description',
             landOwnerTokenId: '',
@@ -167,9 +166,6 @@ export class LandService {
             price: 0.01,
             landLocationList: lands[index].locationList.join(' ')
           }
-          // if ((lands[index].end.x - lands[index].start.x) === 60) {
-          //   console.log(lands[index])
-          // }
           await this.landRepo.save(data)
         }
         return 'Generate Lands Success'
