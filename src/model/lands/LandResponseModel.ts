@@ -17,4 +17,5 @@ export default class LandResponseModel {
   public price: number | null = null
   public minimumOfferPrice: number = Number()
   public bestOffer: OfferLand = new OfferLand
+  public landLocationList: string = String()
 }

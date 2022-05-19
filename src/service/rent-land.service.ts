@@ -233,6 +233,7 @@ export class RentLandService {
       landName: land.landName,
       landDescription: land.landDescription,
       landOwnerTokenId: land.landOwnerTokenId,
+      landLocationList: land.landLocationList,
       landLocation: location,
       landPosition: position,
       landStatus: land.landStatus,

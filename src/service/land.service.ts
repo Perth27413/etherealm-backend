@@ -96,7 +96,7 @@ export class LandService {
       throw new ValidateException('Minimum Offer Price is invalid.')
     }
     const isExistsLand: Land = await this.findLandEntityByTokenId(landRequest.landTokenId)
-    let land: Land = await this.mapLandRequestModelToLandEntity(landRequest, landRequest.minimumOfferPrice, isExistsLand.price)
+    let land: Land = await this.mapLandRequestModelToLandEntity(landRequest, isExistsLand, landRequest.minimumOfferPrice)
     land = await this.landRepo.save(land)
     let result: LandResponseModel = await this.mapLandToLandResponseModel(land)
     return result
@@ -147,6 +147,7 @@ export class LandService {
     try {
       let allLands: Array<Land> = await this.landRepo.find({relations: ["landStatus", "landSize"]})
       if (!allLands.length) {
+      // if (allLands.length) {
         for (let index = 0; index < lands.length; index++) {
           const currentTime: Date = new Date()
           let data: Land = {
@@ -158,13 +159,17 @@ export class LandService {
             landPosition: `${lands[index].start.x},${lands[index].start.y}`,
             landStatus: await this.landStatusService.findStatusById(1), // status 1 = No Owner
             landAssets: '',
-            landSize: await this.landSizeService.findSizeByValue(lands[index].end.x - lands[index].start.x),
+            landSize: await this.landSizeService.findSizeByValue(lands[index].size),
             onRecommend: false,
             minimumOfferPrice: 0.00001,
             createdAt: currentTime,
             updatedAt: currentTime,
-            price: 0.01
+            price: 0.01,
+            landLocationList: lands[index].locationList.join(' ')
           }
+          // if ((lands[index].end.x - lands[index].start.x) === 60) {
+          //   console.log(lands[index])
+          // }
           await this.landRepo.save(data)
         }
         return 'Generate Lands Success'
@@ -219,6 +224,7 @@ export class LandService {
       landName: land.landName,
       landDescription: land.landDescription,
       landOwnerTokenId: land.landOwnerTokenId,
+      landLocationList: land.landLocationList,
       landLocation: location,
       landPosition: position,
       landStatus: land.landStatus,
@@ -232,7 +238,7 @@ export class LandService {
     return result
   }
 
-  private async mapLandRequestModelToLandEntity(landRequest: LandRequestModel, landPrice: number, minimumOfferPrice?: number): Promise<Land> {
+  private async mapLandRequestModelToLandEntity(landRequest: LandRequestModel, existsLand: Land, minimumOfferPrice?: number): Promise<Land> {
     let status: LandStatus = await this.landStatusService.findStatusById(landRequest.landStatus)
     let size: LandSize = await this.landSizeService.findSizeById(landRequest.landSize)
     const currentLand: Date = new Date()
@@ -250,7 +256,8 @@ export class LandService {
       minimumOfferPrice: minimumOfferPrice ? minimumOfferPrice : 0.00001,
       createdAt: currentLand,
       updatedAt: currentLand,
-      price: landPrice
+      price: existsLand.price,
+      landLocationList: existsLand.landLocationList
     }
     return result
   }

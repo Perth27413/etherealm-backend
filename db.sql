@@ -313,3 +313,6 @@ ALTER TABLE public.land ADD price float4 NULL;
 
 
 ALTER TABLE public.log_transactions ADD elapsed_time int8 NULL;
+
+
+ALTER TABLE public.land ADD land_location_list varchar NULL;

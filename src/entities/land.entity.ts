@@ -48,4 +48,7 @@ export class Land {
 
     @Column({name: 'price'})
     price: number
+
+    @Column({name: 'land_location_list'})
+    landLocationList: string
 }
