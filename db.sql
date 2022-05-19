@@ -310,3 +310,6 @@ INSERT INTO public.land_status (land_status_id,land_status_name)
 	VALUES (0,'Waiting transaction');
 
 ALTER TABLE public.land ADD price float4 NULL;
+
+
+ALTER TABLE public.log_transactions ADD elapsed_time int8 NULL;

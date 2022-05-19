@@ -62,7 +62,7 @@ export class OfferLandService {
 
   public async confirmLand(request: ConfirmOfferLandRequestModel, ownerUserTokenId: string): Promise<string> {
     const receipt = await this.contractService.getTransaction(request.hash)
-    if (receipt.status) {
+    if ((receipt[0] as ethers.providers.TransactionReceipt).status) {
       let offers: Array<OfferLand> = await this.offerLandRepo.find({where: {landTokenId: request.landTokenId, isDelete: false}})
       if (!offers.length) {
         throw new NotFoundException
@@ -73,7 +73,7 @@ export class OfferLandService {
       })
       await this.landService.transferLand(ownerUserTokenId, request.offerOwnerTokenId, request.landTokenId)
       await this.offerLandRepo.save(offers)
-      const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel(receipt, ownerUserTokenId, 2)
+      const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel((receipt[0] as ethers.providers.TransactionReceipt), (receipt[1] as number), ownerUserTokenId, 2)
       await this.logTransactionService.addTransaction(transactionRequestModel)
       return 'Confirm Offer Successfully.'
     } else {
@@ -213,13 +213,14 @@ export class OfferLandService {
     return notificationRequest
   }
 
-  private mapReceiptToTransactionRequestModel(receipt: ethers.providers.TransactionReceipt, ownerTokenId: string, type: number): TransactionsRequestModel {
+  private mapReceiptToTransactionRequestModel(receipt: ethers.providers.TransactionReceipt, time: number, ownerTokenId: string, type: number): TransactionsRequestModel {
     const result: TransactionsRequestModel = {
       fromUserTokenId: receipt.from,
       toUserTokenId: ownerTokenId,
       logType: type,
       transactionBlock: receipt.transactionHash,
-      gasPrice: Number(ethers.utils.formatEther(receipt.gasUsed.mul(receipt.effectiveGasPrice)))
+      gasPrice: Number(ethers.utils.formatEther(receipt.gasUsed.mul(receipt.effectiveGasPrice))),
+      elapsedTime: time
     }
     return result
   }

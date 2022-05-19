@@ -29,4 +29,7 @@ export class LogTransactions {
     @Column({name: 'created_at'})
     createdAt: Date
 
+    @Column({name: 'elapsed_time'})
+    elapsedTime: number
+
 }

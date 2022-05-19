@@ -89,7 +89,7 @@ export class RentLandService {
       throw new ValidateException('Period is invalid.')
     }
     const receipt = await this.contractService.getTransaction(request.hash)
-    if (receipt.status) {
+    if ((receipt[0] as ethers.providers.TransactionReceipt).status) {
       const land: Land = await this.landService.findLandEntityByTokenId(request.landTokenId)
       const saveData: RentLand = await this.mapAddRentLandRequestToRentLandEntity(request, userTokenId)
       const result: RentLand = await this.rentLandRepo.save(saveData)
@@ -98,7 +98,7 @@ export class RentLandService {
       await this.landService.updateLandStatus(request.landTokenId, 5)
       const notificationRequest: NotificationsRequestModel = this.mapAddRentLandRequestModelToNotificationRequest(request, userTokenId, land.landOwnerTokenId)
       await this.notificationService.addNotification(notificationRequest)
-      const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel(receipt, land.landOwnerTokenId, 5)
+      const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel((receipt[0] as ethers.providers.TransactionReceipt), (receipt[1] as number), land.landOwnerTokenId, 5)
       const transactionResult: LogTransactions = await this.logTransactionService.addTransactionReturnEntity(transactionRequestModel)
       const paymentData: AddRentPaymentRequestModel = {rentId: result.rentId, logTransactionId: transactionResult.logTransactionsId, price: result.price, renterTokenId: userTokenId}
       await this.rentPaymentService.addPaymentFromRentLand(paymentData, result, transactionResult)
@@ -161,13 +161,14 @@ export class RentLandService {
     return notificationRequest
   }
 
-  private mapReceiptToTransactionRequestModel(receipt: ethers.providers.TransactionReceipt, ownerTokenId: string, type: number): TransactionsRequestModel {
+  private mapReceiptToTransactionRequestModel(receipt: ethers.providers.TransactionReceipt, time: number, ownerTokenId: string, type: number): TransactionsRequestModel {
     const result: TransactionsRequestModel = {
       fromUserTokenId: receipt.from,
       toUserTokenId: ownerTokenId,
       logType: type,
       transactionBlock: receipt.transactionHash,
-      gasPrice: Number(ethers.utils.formatEther(receipt.gasUsed.mul(receipt.effectiveGasPrice)))
+      gasPrice: Number(ethers.utils.formatEther(receipt.gasUsed.mul(receipt.effectiveGasPrice))),
+      elapsedTime: time
     }
     return result
   }

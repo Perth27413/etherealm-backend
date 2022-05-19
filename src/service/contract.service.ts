@@ -22,7 +22,8 @@ export class ContractService {
     this.contract = tempContract
   }
 
-  public async getTransaction(tx: string): Promise<ethers.providers.TransactionReceipt> {
+  public async getTransaction(tx: string): Promise<Array<ethers.providers.TransactionReceipt | number>> {
+    const start: number = performance.now()
     await this.provider.getBlockNumber()
     let receipt = null
     while (true) {
@@ -32,7 +33,9 @@ export class ContractService {
         break
       }
     }
-    return receipt
+    const end: number = performance.now()
+    const usedTime: number = end - start
+    return [receipt, usedTime]
   }
 
   public async getPointsFromUserTokenId(userTokenId: string): Promise<number> {

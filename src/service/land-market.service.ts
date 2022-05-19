@@ -119,11 +119,11 @@ export class LandMarketService {
     }
     if (landOnMarket.ownerUserTokenId.userTokenId === request.fromUserTokenId) {
       const receipt = await this.contractService.getTransaction(request.hash)
-      if (receipt.status) {
+      if ((receipt[0] as ethers.providers.TransactionReceipt).status) {
         const land: LandResponseModel = await this.landService.transferLand(request.fromUserTokenId, request.toUserTokenId, request.landTokenId)
         const notificationRequest: NotificationsRequestModel = this.mapBuyLandRequestToNotificationRequest(request, landOnMarket.price)
         const notification: Notifications = await this.notificationService.addNotification(notificationRequest)
-        const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel(receipt, landOnMarket.ownerUserTokenId.userTokenId, 1)
+        const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel((receipt[0] as ethers.providers.TransactionReceipt), receipt[1] as number, landOnMarket.ownerUserTokenId.userTokenId, 1)
         const transaction: TransactionsResponseModel = await this.logTransactionService.addTransaction(transactionRequestModel)
         landOnMarket.isDelete = true
         await this.landMarketRepo.save(landOnMarket)
@@ -134,13 +134,14 @@ export class LandMarketService {
     }
   }
 
-  private mapReceiptToTransactionRequestModel(receipt: ethers.providers.TransactionReceipt, ownerTokenId: string, type: number): TransactionsRequestModel {
+  private mapReceiptToTransactionRequestModel(receipt: ethers.providers.TransactionReceipt, time: number, ownerTokenId: string, type: number): TransactionsRequestModel {
     const result: TransactionsRequestModel = {
       fromUserTokenId: receipt.from,
       toUserTokenId: ownerTokenId,
       logType: type,
       transactionBlock: receipt.transactionHash,
-      gasPrice: Number(ethers.utils.formatEther(receipt.gasUsed.mul(receipt.effectiveGasPrice)))
+      gasPrice: Number(ethers.utils.formatEther(receipt.gasUsed.mul(receipt.effectiveGasPrice))),
+      elapsedTime: time
     }
     return result
   }

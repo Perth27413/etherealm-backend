@@ -59,7 +59,7 @@ export class HirePurchaseService {
     }
     await this.landService.updateLandStatus(request.landTokenId, 0)
     const receipt = await this.contractService.getTransaction(request.hash)
-    if (receipt.status) {
+    if ((receipt[0] as ethers.providers.TransactionReceipt).status) {
       //change land status
       await this.landService.updateLandStatus(request.landTokenId, 6)
 
@@ -68,7 +68,7 @@ export class HirePurchaseService {
       const hirePurchaseResponse = await this.hirePurchaseRepo.save(saveData)
       
       //add transaction
-      const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel(receipt, renterTokenId, 5)
+      const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel((receipt[0] as ethers.providers.TransactionReceipt), (receipt[1] as number), renterTokenId, 5)
       const transactionResult: LogTransactions = await this.logTransactionService.addTransactionReturnEntity(transactionRequestModel)
 
       //add hire purchase payment
@@ -126,13 +126,14 @@ export class HirePurchaseService {
     return null
   }
 
-  private mapReceiptToTransactionRequestModel(receipt: ethers.providers.TransactionReceipt, ownerTokenId: string, type: number): TransactionsRequestModel {
+  private mapReceiptToTransactionRequestModel(receipt: ethers.providers.TransactionReceipt, time: number, ownerTokenId: string, type: number): TransactionsRequestModel {
     const result: TransactionsRequestModel = {
       fromUserTokenId: receipt.from,
       toUserTokenId: ownerTokenId,
       logType: type,
       transactionBlock: receipt.transactionHash,
-      gasPrice: Number(ethers.utils.formatEther(receipt.gasUsed.mul(receipt.effectiveGasPrice)))
+      gasPrice: Number(ethers.utils.formatEther(receipt.gasUsed.mul(receipt.effectiveGasPrice))),
+      elapsedTime: time
     }
     return result
   }

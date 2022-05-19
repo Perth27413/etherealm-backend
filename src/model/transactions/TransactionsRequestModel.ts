@@ -4,4 +4,5 @@ export default class TransactionsRequestModel {
   public transactionBlock: string = String()
   public gasPrice: number = Number()
   public logType: number = Number()
+  public elapsedTime: number = Number()
 }

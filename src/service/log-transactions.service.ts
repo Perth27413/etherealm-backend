@@ -81,7 +81,8 @@ export class LogTransactionsService {
       transactionBlock: transactionsRequest.transactionBlock,
       gasPrice: transactionsRequest.gasPrice,
       logType: description,
-      createdAt: new Date()
+      createdAt: new Date(),
+      elapsedTime: transactionsRequest.elapsedTime
     }
     return result
   }

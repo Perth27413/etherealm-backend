@@ -17,6 +17,7 @@ import { LandMarket } from 'src/entities/land-market.entity';
 import { ContractService } from './contract.service';
 import { OfferLandService } from './offer-land.service';
 import { OfferLand } from 'src/entities/offer-land.entity';
+import { ethers } from 'ethers';
 
 @Injectable()
 export class LandService {
@@ -100,7 +101,7 @@ export class LandService {
   public async purchaseLand(purchaseLandRequest: PurchaseLandRequestModel): Promise<LandResponseModel> {
     try {
       const receipt = await this.contractService.getTransaction(purchaseLandRequest.hash)
-      if (receipt.status) {
+      if ((receipt[0] as ethers.providers.TransactionReceipt).status) {
         let land: Land = await this.landRepo.findOne({where: {landTokenId: purchaseLandRequest.landTokenId}, relations: ["landStatus", "landSize"]})
         land.landOwnerTokenId = purchaseLandRequest.ownerTokenId
         land.landStatus = await this.landStatusService.findStatusById(2)
