@@ -11,7 +11,7 @@ export class ContractService {
 
   public signer: any = null
   public contract: any = null
-  private contractAddress = '0x234a320Ff69b702b4CEB3518b96F1240007aA659'
+  private contractAddress = '0xc8b4Fa3B9fDD201c562866FF07Aa976280CB6D6e'
   private provider = new ethers.providers.AlchemyProvider("rinkeby")
 
   public async getContract(): Promise<void> {
