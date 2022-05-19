@@ -18,6 +18,9 @@ import { ContractService } from './contract.service';
 import { OfferLandService } from './offer-land.service';
 import { OfferLand } from 'src/entities/offer-land.entity';
 import { ethers } from 'ethers';
+import TransactionsRequestModel from 'src/model/transactions/TransactionsRequestModel';
+import { LogTransactions } from 'src/entities/log-transactions.entity';
+import { LogTransactionsService } from './log-transactions.service';
 
 @Injectable()
 export class LandService {
@@ -28,7 +31,8 @@ export class LandService {
     @InjectRepository(OfferLand) private offerLandRepo: Repository<OfferLand>,
     private landStatusService: LandStatusService,
     private landSizeService: LandSizeService,
-    private contractService: ContractService
+    private contractService: ContractService,
+    private logTransactionService: LogTransactionsService
   ) {}
 
   public async findAll(): Promise<Array<LandResponseModel>> {
@@ -106,6 +110,8 @@ export class LandService {
         land.landOwnerTokenId = purchaseLandRequest.ownerTokenId
         land.landStatus = await this.landStatusService.findStatusById(2)
         land = await this.landRepo.save(land)
+        const transactionRequestModel: TransactionsRequestModel = this.mapReceiptToTransactionRequestModel((receipt[0] as ethers.providers.TransactionReceipt), (receipt[1] as number), purchaseLandRequest.ownerTokenId, 5)
+        const transactionResult: LogTransactions = await this.logTransactionService.addTransactionReturnEntity(transactionRequestModel)
         let result: LandResponseModel = await this.mapLandToLandResponseModel(land)
         return result
       }
@@ -167,6 +173,18 @@ export class LandService {
       console.error(error)
       throw new ValidateException('Error when generate lands')
     }
+  }
+
+  private mapReceiptToTransactionRequestModel(receipt: ethers.providers.TransactionReceipt, time: number, ownerTokenId: string, type: number): TransactionsRequestModel {
+    const result: TransactionsRequestModel = {
+      fromUserTokenId: receipt.from,
+      toUserTokenId: ownerTokenId,
+      logType: type,
+      transactionBlock: receipt.transactionHash,
+      gasPrice: Number(ethers.utils.formatEther(receipt.gasUsed.mul(receipt.effectiveGasPrice))),
+      elapsedTime: time
+    }
+    return result
   }
 
   private async checkLandIsExists(landTokenId: string): Promise<Land | null> {

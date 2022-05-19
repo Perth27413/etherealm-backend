@@ -12,12 +12,14 @@ import { ContractService } from 'src/service/contract.service';
 import { OfferLandService } from 'src/service/offer-land.service';
 import { OfferLandModule } from './offer-land.module';
 import { OfferLand } from 'src/entities/offer-land.entity';
+import { LogTransactionsModule } from './log-transactions.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Land, LandStatus, LandMarket, OfferLand]),
     LandStatusModule,
-    LandSizeModule
+    LandSizeModule,
+    LogTransactionsModule
   ],
   controllers: [LandController],
   providers: [LandService, ContractService],
