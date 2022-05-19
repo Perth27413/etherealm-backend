@@ -35,7 +35,7 @@ export class ContractService {
     }
     const end: number = performance.now()
     const usedTime: number = end - start
-    return [receipt, usedTime]
+    return [receipt, Math.round(usedTime)]
   }
 
   public async getPointsFromUserTokenId(userTokenId: string): Promise<number> {
