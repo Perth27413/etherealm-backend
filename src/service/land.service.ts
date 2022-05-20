@@ -37,7 +37,7 @@ export class LandService {
 
   public async findAll(): Promise<Array<LandResponseModel>> {
     let allLands: Array<Land> = await this.landRepo.find({relations: ["landStatus", "landSize"]})
-    let results: Array<LandResponseModel> = await this.mapLandsToLandResponseModel(allLands)
+    let results: Array<LandResponseModel> = await this.mapLandsToLandResponseModelForMapPage(allLands)
     return results
   }
 
@@ -201,6 +201,33 @@ export class LandService {
     for await (const land of lands) {
       let data: LandResponseModel = await this.mapLandToLandResponseModel(land)
       result.push(data)
+    }
+    return result
+  }
+
+  public async mapLandsToLandResponseModelForMapPage(lands: Array<Land>): Promise<Array<LandResponseModel>> {
+    let result: Array<LandResponseModel> = []
+    for await (const land of lands) {
+      let data: LandResponseModel = await this.mapLandToLandResponseModelForMapPage(land)
+      result.push(data)
+    }
+    return result
+  }
+
+  public async mapLandToLandResponseModelForMapPage(land: Land): Promise<LandResponseModel> {
+    let location: CoordinatesModel = {
+      x: land.landLocation.split(',').map(item => Number(item))[0],
+      y: land.landLocation.split(',').map(item => Number(item))[1]
+    }
+    let position: CoordinatesModel = {
+      x: land.landPosition.split(',').map(item => Number(item))[0],
+      y: land.landPosition.split(',').map(item => Number(item))[1]
+    }
+    let result: LandResponseModel = {
+      ...land,
+      landLocation: location,
+      landPosition: position,
+      bestOffer: null
     }
     return result
   }
