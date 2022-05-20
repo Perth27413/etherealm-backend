@@ -19,8 +19,13 @@ export class LogTransactionsService {
     private logDescriptionService: LogTypeService
   ) {}
 
+  public async findAllEntity(): Promise<Array<LogTransactions>> {
+    let data: Array<LogTransactions> = await this.logDescriptionRepo.find({relations:['fromUserTokenId', 'toUserTokenId', 'logType']})
+    return data
+  }
+
   public async findAll(): Promise<Array<TransactionsResponseModel>> {
-    let data: Array<LogTransactions> = await this.logDescriptionRepo.find()
+    let data: Array<LogTransactions> = await this.logDescriptionRepo.find({relations:['fromUserTokenId', 'toUserTokenId', 'logType']})
     let result: Array<TransactionsResponseModel> = this.mapTransactionsToResponse(data)
     return result
   }

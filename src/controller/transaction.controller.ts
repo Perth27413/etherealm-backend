@@ -8,6 +8,12 @@ import { LogTransactionsService } from 'src/service/log-transactions.service';
 export default class TransactionController {
   constructor(private readonly transactionService: LogTransactionsService) {}
 
+  @Get()
+  public async getAllTransactions(): Promise<Array<LogTransactions>> {
+    let transaction: Array<LogTransactions> = await this.transactionService.findAllEntity()
+    return transaction
+  }
+
   @Get('/:tokenId')
   public async findByTokenId(@Param("tokenId") tokenId: string): Promise<Array<TransactionsResponseModel>> {
     let transaction: Array<TransactionsResponseModel> = await this.transactionService.getTransactionByUserId(tokenId)
