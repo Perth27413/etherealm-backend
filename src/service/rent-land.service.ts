@@ -123,7 +123,7 @@ export class RentLandService {
     const result: RentLandDetailsResponseModel = {
       ...rentLand,
       landTokenId: await this.mapLandToLandResponseModel(rentLand.landTokenId),
-      nextPayment: this.calculateNextPayment(rentLand.endDate, rentLand.period), 
+      nextPayment: this.calculateNextPayment(rentLand.startDate, rentLand.endDate, rentLand.period), 
       paymentHistories: await this.rentPaymentService.findPaymentByLandAndOwnerTokenId(rentLand.rentId, rentLand.renterTokenId.userTokenId)
     }
     console.log(result.landTokenId)
@@ -138,11 +138,12 @@ export class RentLandService {
     return true
   }
 
-  private calculateNextPayment(endDate: Date, period: number): Date {
+  private calculateNextPayment(startDate: Date, endDate: Date, period: number): Date {
     if (!this.checkIsLastPayment(endDate)) {
+      const start: Date = new Date(startDate)
       let currentDate: Date = new Date()
       if (period > 14) {
-        currentDate.setMonth(currentDate.getMonth() + 1)
+        start.setMonth(currentDate.getMonth() + 1)
         return currentDate
       }
     }
