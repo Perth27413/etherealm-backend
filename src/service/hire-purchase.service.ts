@@ -101,7 +101,7 @@ export class HirePurchaseService {
   private async mapHirePurchaseToHirePurchaseResponse(hirePurchase: HirePurchase): Promise<HirePurchaseResponseModel> {
     const result: HirePurchaseResponseModel = {
       ...hirePurchase,
-      nextPayment: this.calculateNextPayment(hirePurchase.endDate, hirePurchase.period),
+      nextPayment: this.calculateNextPayment(hirePurchase.startDate, hirePurchase.endDate, hirePurchase.period),
       paymentHistories: await this.hirePurchasePaymentService.findPaymentByHirePurchaseIdAndRenterTokenId(hirePurchase.hirePurchaseId, hirePurchase.renterTokenId.userTokenId)
     }
     return result
@@ -115,12 +115,13 @@ export class HirePurchaseService {
     return true
   }
 
-  private calculateNextPayment(endDate: Date, period: number): Date {
+  private calculateNextPayment(startDate: Date, endDate: Date, period: number): Date {
     if (!this.checkIsLastPayment(endDate)) {
+      const start: Date = new Date(startDate)
       let currentDate: Date = new Date()
       if (period > 14) {
-        currentDate.setMonth(currentDate.getMonth() + 1)
-        return currentDate
+        start.setMonth(currentDate.getMonth() + 1)
+        return start
       }
     }
     return null
