@@ -92,7 +92,7 @@ export class LandService {
   }
 
   public async updateLand(landRequest: LandRequestModel): Promise<LandResponseModel> {
-    if (landRequest.minimumOfferPrice < 0.00001) {
+    if (landRequest.minimumOfferPrice < 0.001) {
       throw new ValidateException('Minimum Offer Price is invalid.')
     }
     const isExistsLand: Land = await this.findLandEntityByTokenId(landRequest.landTokenId)
@@ -160,7 +160,7 @@ export class LandService {
             landAssets: '',
             landSize: await this.landSizeService.findSizeByValue(lands[index].size),
             onRecommend: false,
-            minimumOfferPrice: 0.00001,
+            minimumOfferPrice: 0.001,
             createdAt: currentTime,
             updatedAt: currentTime,
             price: 0.01,
