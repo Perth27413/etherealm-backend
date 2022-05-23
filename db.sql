@@ -316,3 +316,6 @@ ALTER TABLE public.log_transactions ADD elapsed_time int8 NULL;
 
 
 ALTER TABLE public.land ADD land_location_list varchar NULL;
+
+
+ALTER TABLE public.land ADD land_url varchar NULL;

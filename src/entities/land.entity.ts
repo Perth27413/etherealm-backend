@@ -51,4 +51,7 @@ export class Land {
 
     @Column({name: 'land_location_list'})
     landLocationList: string
+
+    @Column({name: 'land_url'})
+    landUrl: string
 }

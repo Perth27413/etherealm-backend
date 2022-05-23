@@ -125,7 +125,7 @@ export class OfferLandService {
     if (points < request.offerPrice) {
       throw new ValidateException('Points is not enough.')
     }
-    if (request.offerPrice < 0.00001) {
+    if (request.offerPrice < 0.001) {
       throw new ValidateException('Offer Price is invalid.')
     }
     const data: OfferLand = await this.createOfferRequestToOfferLand(request)

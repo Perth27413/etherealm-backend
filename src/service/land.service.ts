@@ -163,8 +163,9 @@ export class LandService {
             minimumOfferPrice: 0.001,
             createdAt: currentTime,
             updatedAt: currentTime,
-            price: 0.01,
-            landLocationList: lands[index].locationList.join(' ')
+            price: lands[index].price,
+            landLocationList: lands[index].locationList.join(' '),
+            landUrl: ''
           }
           await this.landRepo.save(data)
         }
@@ -276,11 +277,12 @@ export class LandService {
       landAssets: landRequest.landAssets,
       landSize: size,
       onRecommend: landRequest.onRecommend,
-      minimumOfferPrice: minimumOfferPrice ? minimumOfferPrice : 0.00001,
+      minimumOfferPrice: minimumOfferPrice ? minimumOfferPrice : 0.001,
       createdAt: currentLand,
       updatedAt: currentLand,
       price: existsLand.price,
-      landLocationList: existsLand.landLocationList
+      landLocationList: existsLand.landLocationList,
+      landUrl: landRequest.landUrl
     }
     return result
   }
