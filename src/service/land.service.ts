@@ -254,6 +254,7 @@ export class LandService {
       landStatus: land.landStatus,
       landAssets: land.landAssets,
       landSize: land.landSize,
+      landUrl: land.landUrl,
       onRecommend: land.onRecommend,
       price: landOnMarket ? landOnMarket.price : land.price,
       minimumOfferPrice: land.minimumOfferPrice,
