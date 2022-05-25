@@ -241,6 +241,7 @@ export class RentLandService {
       landAssets: land.landAssets,
       landSize: land.landSize,
       onRecommend: land.onRecommend,
+      landUrl: land.landUrl,
       price: landOnMarket ? landOnMarket.price : null,
       minimumOfferPrice: land.minimumOfferPrice,
       bestOffer: await this.offerLandService.findBestOffer(land.landTokenId)
